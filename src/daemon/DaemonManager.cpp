@@ -99,6 +99,9 @@ bool DaemonManager::start(const QString &flags, NetworkType::Type nettype, const
     arguments << "--check-updates" << "disabled";
     arguments << "--non-interactive";
 
+    //i2pd testing
+    arguments << "--tx-proxy" << "i2p,127.0.0.1:8060" << "--add-peer" << "core5hzivg4v5ttxbor4a3haja6dssksqsmiootlptnsrfsgwqqa.b32.i2p" << "--add-peer" << "dsc7fyzzultm7y6pmx2avu6tze3usc7d27nkbzs5qwuujplxcmzq.b32.i2p" << "--add-peer" << "sel36x6fibfzujwvt4hf5gxolz6kd3jpvbjqg6o3ud2xtionyl2q.b32.i2p" << "--add-peer" << "yht4tm2slhyue42zy5p2dn3sft2ffjjrpuy7oc2lpbhifcidml4q.b32.i2p" << "--anonymous-inbound" << "r7l5jv6ae42qc7pw2fo756a2lrrtpr6isnk4zlmp7svbg4lx55ra.b32.i2p";
+
     // --max-concurrency based on threads available.
     int32_t concurrency = qMax(1, QThread::idealThreadCount() / 2);
 

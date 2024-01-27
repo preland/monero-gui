@@ -59,7 +59,7 @@ Rectangle {
         
         MoneroComponents.TextPlain {
             id: networkMainLabel
-            text: qsTr("Your wallet communicates with a set node and other nodes on the\nMonero network. This communication can be used to identify you.\nUse the options below to protect your privacy. Please check your\nlocal laws and internet policies before protecting your connection\nusing i2p, an anonymizing software.") + translationManager.emptyString
+            text: qsTr("Your wallet communicates with a set node and other nodes on the\nMonero network. This communication can be used to identify you.\nUse the options below to protect your privacy. \n\nPlease check your local laws and internet policies before using I2P, a P2P distributed invisible internet. See more information at https://geti2p.net (http://i2p-projekt.i2p)") + translationManager.emptyString
             wrapMode: Text.Wrap
             Layout.fillWidth: true
             font.family: MoneroComponents.Style.fontRegular.name
@@ -71,31 +71,57 @@ Rectangle {
             id: modeButtonsColumn
             Layout.topMargin: 8
 
-            MoneroComponents.RadioButton {
+            MoneroComponents.CheckBox {
                 id: handleProtectButton
                 text: qsTr("Protect my network connection") + translationManager.emptyString
                 fontSize: 16
-                enabled: !checked
                 checked: false
                 onClicked: {
-                    handleProtectButton.checked = true;
-                    handleUnprotectButton.checked = false;
-                    startI2PD();
+                    if (handleProtectButton.checked) {
+                        startI2PD();
+                    } else {
+                        stopI2PD();
+                    }
                 }
             }
-
-            MoneroComponents.RadioButton {
-                id: handleUnprotectButton
-                text: qsTr("Do not protect my connection") + translationManager.emptyString
+            MoneroComponents.CheckBox {
+                id: handleProxyButton
+                text: qsTr("Protect my network connection") + translationManager.emptyString
                 fontSize: 16
-                enabled: !checked
-                checked: true
+                checked: false
                 onClicked: {
-                    handleUnprotectButton.checked = true;
-                    handleProtectButton.checked = false;
-                    stopI2PD();
+                    if (handleProxyButton.checked) {
+                        startI2PD();//todo: add functionality
+                    } else {
+                        startI2PD();
+                    }
                 }
             }
+        }
+
+        MoneroComponents.LineEditMulti{
+            id: outproxyListLine
+            visible: handleProxyButton.checked
+            Layout.fillWidth: true
+            labelFontSize: 14
+            labelText: qsTr("Outproxy List") + translationManager.emptyString;
+            placeholderFontSize: 16
+            placeholderText: qsTr("list outproxies here") + translationManager.emptyString;
+            readOnly: false
+            wrapMode: Text.WrapAnywhere
+
+        }
+        MoneroComponents.LineEditMulti{
+            id: nodeListLine
+            visible: handleProxyButton.checked
+            Layout.fillWidth: true
+            labelFontSize: 14
+            labelText: qsTr("Node List") + translationManager.emptyString;
+            placeholderFontSize: 16
+            placeholderText: qsTr("list nodes here") + translationManager.emptyString;
+            readOnly: false
+            wrapMode: Text.WrapAnywhere
+
         }
 
         RowLayout
@@ -116,15 +142,23 @@ Rectangle {
 
     function startI2PD()
     {
-        /*
+        //TODO: figure out how this is supposed to be used ??? 
+        //var args = "--tx-proxy i2p,127.0.0.1:8060 --add-peer core5hzivg4v5ttxbor4a3haja6dssksqsmiootlptnsrfsgwqqa.b32.i2p --add-peer dsc7fyzzultm7y6pmx2avu6tze3usc7d27nkbzs5qwuujplxcmzq.b32.i2p --add-peer sel36x6fibfzujwvt4hf5gxolz6kd3jpvbjqg6o3ud2xtionyl2q.b32.i2p --add-peer yht4tm2slhyue42zy5p2dn3sft2ffjjrpuy7oc2lpbhifcidml4q.b32.i2p --anonymous-inbound XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.b32.i2p,127.0.0.1:8061 --detach";
+        var args = "";//note: args are applied to monerod; not i2pd
+        if(handleProxyButton.checked){
+            var args = "";//todo: figure out the actual args for this
+        }else {
+            var args = "";//and this
+        }
+
         var noSync = false;
         //these args will be deleted because DaemonManager::start will re-add them later.
         //removing '--tx-proxy=i2p,...' lets us blindly add '--tx-proxy i2p,...' later without risking duplication.
-        var defaultArgs = ["--detach","--data-dir","--bootstrap-daemon-address","--prune-blockchain","--no-sync","--check-updates","--non-interactive","--max-concurrency","--tx-proxy=i2p,127.0.0.1:4447"]
+        var defaultArgs = ["--detach","--data-dir","--bootstrap-daemon-address","--prune-blockchain","--no-sync","--check-updates","--non-interactive","--max-concurrency","--tx-proxy=i2p,127.0.0.1:8060"]
         var customDaemonArgsArray = args.split(' ');
         var flag = "";
         var allArgs = [];
-        var i2pdArgs = ["--tx-proxy i2p,127.0.0.1:4447"];
+        var i2pdArgs = ["--tx-proxy i2p,127.0.0.1:8060"];
         //create an array (allArgs) of ['--arg value','--arg2','--arg3']
         for (let i = 0; i < customDaemonArgsArray.length; i++) {
             if(!customDaemonArgsArray[i].startsWith("--")) {
@@ -146,24 +180,29 @@ Rectangle {
                 continue
             }
         }
-        var success = daemonManager.start(allArgs.join(" "), persistentSettings.nettype, persistentSettings.blockchainDataDir, persistentSettings.bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain)
+        //daemonManager.stop();
+        var success = true//daemonManager.start(allArgs.join(" "), persistentSettings.nettype, persistentSettings.blockchainDataDir, persistentSettings.bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain)
         if (success) {
-            */
-        i2pdManager.start();
-        //}       
+            i2pdManager.start();
+        }       
     }
 
     function stopI2PD()
     {
         i2pdManager.stop();
+        //daemonManager.stop();
+        //daemonManager.start("", persistentSettings.nettype, persistentSettings.blockchainDataDir, persistentSettings.bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain);//todo: get the "flag" value for parameter 1
+
     }
 
     function onI2PDStatus(isRunning)
     {
         
     }
-
+    function debugI2PD() {
+        i2pdManager.debug();
+    }
     Component.onCompleted: {
-        i2pdManager.i2pdStatus.connect(onI2PDStatus);
+        //i2pdManager.i2pdStatus.connect(onI2PDStatus);
     }
 }

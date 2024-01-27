@@ -44,23 +44,30 @@
 #include "../../external/i2pd/libi2pd_client/ClientContext.h"
 #include "../../external/i2pd/libi2pd/Crypto.h"
 
+#include "../../external/i2pd/daemon/Daemon.h"
+
+#include <thread>
 #include <vector>
-#include <QApplication>
+#include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
+
+#include <boost/thread.hpp>
 
 I2PDManager::I2PDManager(QObject *parent)
     : QObject(parent)
 {
+    std::cout << QStandardPaths::writableLocation(QStandardPaths::DataLocation).toStdString() << "\n";
 #ifdef Q_OS_WIN
-    m_i2pdDataDir = QApplication::applicationDirPath() + "/i2pd";
+    m_i2pdDataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/i2pd";
     if (!QDir(m_i2pdDataDir).exists()) {
-        QDir().mkdir(m_i2pdDataDir);
+        QDir().mkpath(m_i2pdDataDir);
     }
 #elif defined(Q_OS_UNIX)
-    m_i2pdDataDir = QApplication::applicationDirPath() + "/i2pd";
-        if (!QDir(m_i2pdDataDir).exists()) {
-        QDir().mkdir(m_i2pdDataDir);
+    m_i2pdDataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation) + "/i2pd";
+    std::cout << m_i2pdDataDir.toStdString() << "\n";
+    if (!QDir(m_i2pdDataDir).exists()) {
+        QDir().mkpath(m_i2pdDataDir);
     }
 #endif
     if (m_i2pdDataDir.length() == 0) {
@@ -79,19 +86,22 @@ I2PDManager::~I2PDManager()
 
 void I2PDManager::init(int argc, char* argv[])
 {
-    i2p::config::Init();
+    Daemon.init(argc,argv);
+    //i2p::util::DaemonLinux::Instance()
+    /*i2p::config::Init();
     i2p::config::ParseCmdline(argc, argv);
-
     std::string datadir;
     i2p::config::GetOption("datadir", datadir);
     i2p::fs::DetectDataDir(datadir, false);
     i2p::fs::Init();
-
+    i2p::config::ParseConfig(datadir + "/i2pd.conf");
     i2p::config::Finalize();
 
     std::string certsdir; i2p::config::GetOption("certsdir", certsdir);
     i2p::fs::SetCertsDir(certsdir);
-    certsdir = i2p::fs::GetCertsDir();
+    certsdir = i2p::fs::GetCertsDir();//todo: ask if this actually makes sense
+    std::cout << "certsdir: " << certsdir << "\n";
+    
 
     bool precomputation; i2p::config::GetOption("precomputation.elgamal", precomputation);
     bool aesni; i2p::config::GetOption("cpuext.aesni", aesni);
@@ -125,7 +135,7 @@ void I2PDManager::init(int argc, char* argv[])
         transitTunnels *= 2; // double default number of transit tunnels for floodfill
     i2p::tunnel::tunnels.SetMaxNumTransitTunnels (transitTunnels);
 
-    /* this section also honors 'floodfill' flag, if set above */
+    // this section also honors 'floodfill' flag, if set above 
     std::string bandwidth; i2p::config::GetOption("bandwidth", bandwidth);
     if (bandwidth.length () > 0)
     {
@@ -160,11 +170,23 @@ void I2PDManager::init(int argc, char* argv[])
 
     std::string family; i2p::config::GetOption("family", family);
     i2p::context.SetFamily(family);
+    m_isRunning = false;*/
 }
-
 void I2PDManager::start()
 {
+    m_daemon.reset(new QProcess());
+
+    m_daemon->startDetached(m_monerod, "");
+        //std::cout << "we here\n";
+        /*boost::thread i2pd ([a = &Daemon](){
+            if(a->start()) {
+                a->run();
+            }
+        });*/
+        //Daemon.run();
+    /*
     if (!isRunning()) {
+        i2p::log::Log().Start();
 		i2p::data::netdb.Start();
 
 		bool nettime; i2p::config::GetOption("nettime.enabled", nettime);
@@ -190,12 +212,14 @@ void I2PDManager::start()
 		i2p::tunnel::tunnels.Start();
 		i2p::context.Start();
 		i2p::client::context.Start();
-    }
+        m_isRunning = true;
+    }*/
 }
 
 void I2PDManager::stop()
 {
-    if (isRunning()) {
+    Daemon.stop();
+    /*if (isRunning()) {
 		i2p::client::context.Stop();
 		i2p::context.Stop();
 		i2p::tunnel::tunnels.Stop();
@@ -209,11 +233,12 @@ void I2PDManager::stop()
 		i2p::transport::transports.Stop();
 		i2p::data::netdb.Stop();
 		i2p::crypto::TerminateCrypto();
-    }
+        m_isRunning = false;
+    }*/
 }
 
 bool I2PDManager::isRunning() const
 {
-    //return m_isRunning;
-    return false;
+    return m_isRunning;
+    //return false;//todo: implement
 }

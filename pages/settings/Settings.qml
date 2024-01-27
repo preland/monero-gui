@@ -84,6 +84,7 @@ ColumnLayout {
         MoneroComponents.NavbarItem {
             active: settingsStateView.state == "Network"
             text: qsTr("Network") + translationManager.emptyString
+            visible: appWindow.walletMode >= 2
             onSelected: settingsStateView.state = "Network"
         }
     }

@@ -11,6 +11,7 @@ target_include_directories(i2p
         "../../external/i2pd/libi2pd"
         "../../external/i2pd/libi2pd_client"
         "../../external/i2pd/i18n"
+        "../../external/i2pd/daemon"
         ${Boost_INCLUDE_DIRS}
 )
 
@@ -19,5 +20,6 @@ target_link_libraries(i2p
         libi2pdclient
         libi2pd
         libi2pdlang
+        libdaemon
         ZLIB::ZLIB
 )
