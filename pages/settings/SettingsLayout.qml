@@ -271,6 +271,40 @@ Rectangle {
                 persistentSettings.proxyAddress = proxyEdit.getAddress();
             }
         }
+        MoneroComponents.CheckBox {
+            id: i2pCheckbox
+            Layout.topMargin: 6
+            enabled: true
+            checked: persistentSettings.i2p_partial
+            onClicked: {
+                persistentSettings.i2p_partial = !persistentSettings.i2p_partial;
+            }
+            text: qsTr("Use I2P for transactions")
+        }
+        MoneroComponents.I2PNodeEdit {
+            id: i2pEdit
+            enabled: i2pCheckbox.enabled
+            Layout.leftMargin: 36
+            Layout.topMargin: 6
+            Layout.minimumWidth: 100
+            placeholderFontSize: 15
+            visible: i2pCheckbox.checked
+
+            i2pOutPortLabelText: qsTr("I2P Outgoing Port") + translationManager.emptyString
+            i2pInPortLabelText: qsTr("I2P Incoming Port") + translationManager.emptyString
+            i2pAddrLabelText: qsTr("I2P Peer IP addresses") + translationManager.emptyString
+
+            //initialAddress: socksProxyFlagSet ? socksProxyFlag : persistentSettings.proxyAddress
+            onEditingFinished: {
+                //persistentSettings.proxyAddress = proxyEdit.getAddress();
+                persistentSettings.i2pInPort = i2pEdit.getInPort();
+                persistentSettings.i2pOutPort = i2pEdit.getOutPort();
+                persistentSettings.i2pPeerAddr = i2pEdit.getPeerAddresses();
+                persistentSettings.i2pPeerAddrCmd = i2pEdit.getPeerAddressesFormatted();
+
+                //todo: add button to manually restart monerod
+          }
+        }
 
         MoneroComponents.StandardButton {
             visible: !persistentSettings.customDecorations

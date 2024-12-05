@@ -117,6 +117,7 @@
         <file>components/QRCodeScanner.qml</file>
         <file>components/TextBlock.qml</file>
         <file>components/RemoteNodeEdit.qml</file>
+        <file>components/I2PNodeEdit.qml</file>
         <file>pages/Keys.qml</file>
         <file>images/appicon.ico</file>
         <file>images/card-background-black0.png</file>

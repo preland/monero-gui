@@ -36,6 +36,10 @@ file(GLOB SOURCE_FILES
     "libwalletqt/UnsignedTransaction.h"
     "daemon/*.h"
     "daemon/*.cpp"
+    "i2p/i2p.h"
+    "i2p/i2p.cpp"
+    "i2p/curl_effective_url.h"
+    "i2p/curl_effective_url.cpp"
     "p2pool/*.h"
     "p2pool/*.cpp"
     "model/*.h"
@@ -99,6 +103,7 @@ target_include_directories(monero-wallet-gui PUBLIC
     ${CMAKE_SOURCE_DIR}/monero/external/qrcodegen
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/daemon
+  ${CMAKE_CURRENT_SOURCE_DIR}/i2p
     ${CMAKE_CURRENT_SOURCE_DIR}/p2pool
 	${CMAKE_CURRENT_SOURCE_DIR}/libwalletqt
 	${CMAKE_CURRENT_SOURCE_DIR}/model
@@ -112,6 +117,8 @@ target_compile_definitions(monero-wallet-gui
 	${Qt5Widgets_DEFINITIONS}
     ${Qt5Qml_DEFINITIONS}
 )
+
+find_package(CURL REQUIRED)
 
 if(APPLE)
     if(NOT ICU_ROOT)
@@ -136,6 +143,7 @@ target_link_libraries(monero-wallet-gui
     qrdecoder
     translations
     zxcvbn
+    CURL::libcurl
 )
 
 if(X11_FOUND)

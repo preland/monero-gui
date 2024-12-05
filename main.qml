@@ -716,7 +716,10 @@ ApplicationWindow {
 
         const noSync = appWindow.walletMode === 0;
         const bootstrapNodeAddress = persistentSettings.walletMode < 2 ? "auto" : persistentSettings.bootstrapNodeAddress
-        daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockchainDataDir, bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain);
+        if (persistentSettings.i2p_partial) {
+          flags+= " --tx-proxy i2p,127.0.0.1:" + persistentSettings.i2pOutPort + " " + persistentSettings.i2pPeerAddrCmd;
+        }
+daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockchainDataDir, bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain);
     }
 
     function stopDaemon(callback, splash){
@@ -1450,6 +1453,12 @@ ApplicationWindow {
 
         property string proxyAddress: "127.0.0.1:9050"
         property bool proxyEnabled: isTails
+        property bool i2p_partial: false
+        property bool i2p_full: false
+        property string i2pInPort: "8061"
+        property string i2pOutPort: "8060"
+        property string i2pPeerAddr: "TODO:GETLEGITPEERS.b32.i2p"
+        property string i2pPeerAddrCmd: "--add-peer TODO:GETLEGITPEERS.b32.i2p"
         function getProxyAddress() {
             if ((socksProxyFlagSet && socksProxyFlag == "") || !proxyEnabled) {
                 return "";

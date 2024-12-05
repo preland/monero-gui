@@ -38,19 +38,15 @@ GridLayout {
     columns: 2
     columnSpacing: 32
     id: root
-    property alias daemonAddrText: daemonAddr.text
-    property alias daemonPortText: daemonPort.text
-    //property alias i2pOutPortText: i2pOutPort.text
-    //property alias i2pInPortText: i2pInPort.text
-    //property alias i2pAddrText: i2pAddr.text
-    property alias daemonAddrLabelText: daemonAddr.labelText
-    property alias daemonPortLabelText: daemonPort.labelText
-    //property alias i2pOutPortLabelText: i2pOutPort.labelText
-    //property alias i2pInPortLabelText: i2pInPort.labelText
-    //property alias i2pAddrLabelText: i2pAddr.labelText
+    property alias i2pOutPortText: i2pOutPort.text
+    property alias i2pInPortText: i2pInPort.text
+    property alias i2pAddrText: i2pAddr.text
+    property alias i2pOutPortLabelText: i2pOutPort.labelText
+    property alias i2pInPortLabelText: i2pInPort.labelText
+    property alias i2pAddrLabelText: i2pAddr.labelText
 
-    property string initialAddress: ""
-    property var initialHostPort: initialAddress.match(/^(.*?)(?:\:?(\d*))$/)
+    //property string initialAddress: ""
+    //property var initialHostPort: initialAddress.match(/^(.*?)(?:\:?(\d*))$/)
 
     // TODO: LEGACY; remove these placeHolder variables when
     // the wizards get redesigned to the black-theme
@@ -74,37 +70,83 @@ GridLayout {
 
     onActiveFocusChanged: activeFocus && daemonAddr.forceActiveFocus()
 
-    function isValid() {
-        return daemonAddr.text.trim().length > 0 && daemonPort.acceptableInput
-    }
+    //function isValid() {
+        //return daemonAddr.text.trim().length > 0 && daemonPort.acceptableInput
+    //}
 
-    function getAddress() {
-        if (!isValid()) {
-            return "";
-        }
-
-        var addr = daemonAddr.text.trim();
-        var port = daemonPort.text.trim();
-        return addr + ":" + port;
+    //function getAddress() {
+    //    if (!isValid()) {
+    //        return "";
+    //    }
+    //
+    //    var addr = daemonAddr.text.trim();
+    //    var port = daemonPort.text.trim();
+    //    return addr + ":" + port;
+    //}
+    function getInPort() {
+      return i2pInPort.text.trim();
     }
-    //function getInPort() {
-    //  return i2pInPort.text.trim();
+    function getOutPort() {
+      return i2pOutPort.text.trim();
+    }
+    function getPeerAddresses() {
+      return i2pAddr.text.trim();
+    }
+    function getPeerAddressesFormatted() {
+      var addrArray = i2pAddr.text.trim().split(",");
+      var str = "";
+      addrArray.forEach(addr => {
+        str+="--add-peer " + addr + " ";
+      });
+      return str.trim();
+    }
+        //MoneroComponents.LineEdit {
+    //    id: daemonAddr
+    //    Layout.preferredWidth: root.width/3
+    //    placeholderText: qsTr("Remote Node Hostname / IP") + translationManager.emptyString
+    //    placeholderFontFamily: root.placeholderFontFamily
+    //    placeholderFontBold: root.placeholderFontBold
+    //    placeholderFontSize: root.placeholderFontSize
+    //    placeholderColor: root.placeholderColor
+    //    placeholderOpacity: root.placeholderOpacity
+    //    labelFontSize: root.labelFontSize
+    //    backgroundColor: lineEditBackgroundColor
+    //    fontColor: lineEditFontColor
+    //    fontBold: lineEditFontBold
+    //    fontSize: lineEditFontSize
+    //    onEditingFinished: {
+    //        text = text.replace(ipv6Regex, "[$1]");
+    //        root.editingFinished();
+    //    }
+    //    onTextChanged: root.textChanged()
+    //    text: initialHostPort[1]
     //}
-    //function getOutPort() {
-    //  return i2pOutPort.text.trim();
+    //
+    //MoneroComponents.LineEdit {
+    //    id: daemonPort
+    //    Layout.preferredWidth: root.width/3
+    //    placeholderText: qsTr("Port") + translationManager.emptyString
+    //    placeholderFontFamily: root.placeholderFontFamily
+    //    placeholderFontBold: root.placeholderFontBold
+    //    placeholderFontSize: root.placeholderFontSize
+    //    placeholderColor: root.placeholderColor
+    //    placeholderOpacity: root.placeholderOpacity
+    //    labelFontSize: root.labelFontSize
+    //    backgroundColor: lineEditBackgroundColor
+    //    fontColor: lineEditFontColor
+    //    fontBold: lineEditFontBold
+    //    fontSize: lineEditFontSize
+    //    validator: IntValidator{bottom: 1; top: 65535;}
+    //
+    //    onEditingFinished: root.editingFinished()
+    //    onTextChanged: root.textChanged()
+    //    text: initialHostPort[2]
     //}
-    //function getPeerAddresses() {
-    //  var addrArray = i2pAddr.text.trim().split(",");
-    //  var str = "";
-    //  addrArray.forEach(addr => {
-    //    str+="--add-peer " + addr;
-    //  });
-    //  return str.trim();
-    //}
+  
     MoneroComponents.LineEdit {
-        id: daemonAddr
+        id: i2pAddr
         Layout.preferredWidth: root.width/3
-        placeholderText: qsTr("Remote Node Hostname / IP") + translationManager.emptyString
+        placeholderText: qsTr("XX...XX.b32.i2p,YY...YY.b32.i2p,etc.") + translationManager.emptyString
         placeholderFontFamily: root.placeholderFontFamily
         placeholderFontBold: root.placeholderFontBold
         placeholderFontSize: root.placeholderFontSize
@@ -116,17 +158,16 @@ GridLayout {
         fontBold: lineEditFontBold
         fontSize: lineEditFontSize
         onEditingFinished: {
-            text = text.replace(ipv6Regex, "[$1]");
+            //text = text.replace(ipv6Regex, "[$1]");
             root.editingFinished();
         }
         onTextChanged: root.textChanged()
-        text: initialHostPort[1]
-    }
-
-    MoneroComponents.LineEdit {
-        id: daemonPort
+        text: persistentSettings.i2pPeerAddr
+  }
+  MoneroComponents.LineEdit {
+        id: i2pInPort
         Layout.preferredWidth: root.width/3
-        placeholderText: qsTr("Port") + translationManager.emptyString
+        placeholderText: qsTr("8061") + translationManager.emptyString
         placeholderFontFamily: root.placeholderFontFamily
         placeholderFontBold: root.placeholderFontBold
         placeholderFontSize: root.placeholderFontSize
@@ -141,68 +182,26 @@ GridLayout {
 
         onEditingFinished: root.editingFinished()
         onTextChanged: root.textChanged()
-        text: initialHostPort[2]
-    }
-  
-  //  MoneroComponents.LineEdit {
-  //      id: i2pAddr
-  //      Layout.preferredWidth: root.width/3
-  //      placeholderText: qsTr("XX...XX.b32.i2p,YY...YY.b32.i2p,etc.") + translationManager.emptyString
-  //      placeholderFontFamily: root.placeholderFontFamily
-  //      placeholderFontBold: root.placeholderFontBold
-  //      placeholderFontSize: root.placeholderFontSize
-  //      placeholderColor: root.placeholderColor
-  //      placeholderOpacity: root.placeholderOpacity
-  //      labelFontSize: root.labelFontSize
-  //      backgroundColor: lineEditBackgroundColor
-  //      fontColor: lineEditFontColor
-  //      fontBold: lineEditFontBold
-  //      fontSize: lineEditFontSize
-  //      onEditingFinished: {
-  //          text = text.replace(ipv6Regex, "[$1]");
-  //          root.editingFinished();
-  //      }
-  //      onTextChanged: root.textChanged()
-  //      text: initialHostPort[1]
-  //}
-  //MoneroComponents.LineEdit {
-  //      id: i2pInPort
-  //      Layout.preferredWidth: root.width/3
-  //      placeholderText: qsTr("8061") + translationManager.emptyString
-  //      placeholderFontFamily: root.placeholderFontFamily
-  //      placeholderFontBold: root.placeholderFontBold
-  //      placeholderFontSize: root.placeholderFontSize
-  //      placeholderColor: root.placeholderColor
-  //      placeholderOpacity: root.placeholderOpacity
-  //      labelFontSize: root.labelFontSize
-  //      backgroundColor: lineEditBackgroundColor
-  //      fontColor: lineEditFontColor
-  //      fontBold: lineEditFontBold
-  //      fontSize: lineEditFontSize
-  //      validator: IntValidator{bottom: 1; top: 65535;}
-  //
-  //      onEditingFinished: root.editingFinished()
-  //      onTextChanged: root.textChanged()
-  //      text: initialHostPort[2]
-  //}
-  //MoneroComponents.LineEdit {
-  //      id: i2pOutPort
-  //      Layout.preferredWidth: root.width/3
-  //      placeholderText: qsTr("8060") + translationManager.emptyString
-  //      placeholderFontFamily: root.placeholderFontFamily
-  //      placeholderFontBold: root.placeholderFontBold
-  //      placeholderFontSize: root.placeholderFontSize
-  //      placeholderColor: root.placeholderColor
-  //      placeholderOpacity: root.placeholderOpacity
-  //      labelFontSize: root.labelFontSize
-  //      backgroundColor: lineEditBackgroundColor
-  //      fontColor: lineEditFontColor
-  //      fontBold: lineEditFontBold
-  //      fontSize: lineEditFontSize
-  //      validator: IntValidator{bottom: 1; top: 65535;}
-  //
-  //      onEditingFinished: root.editingFinished()
-  //      onTextChanged: root.textChanged()
-  //      text: initialHostPort[2]
-  //}
+        text: persistentSettings.i2pInPort
+  }
+  MoneroComponents.LineEdit {
+        id: i2pOutPort
+        Layout.preferredWidth: root.width/3
+        placeholderText: qsTr("8060") + translationManager.emptyString
+        placeholderFontFamily: root.placeholderFontFamily
+        placeholderFontBold: root.placeholderFontBold
+        placeholderFontSize: root.placeholderFontSize
+        placeholderColor: root.placeholderColor
+        placeholderOpacity: root.placeholderOpacity
+        labelFontSize: root.labelFontSize
+        backgroundColor: lineEditBackgroundColor
+        fontColor: lineEditFontColor
+        fontBold: lineEditFontBold
+        fontSize: lineEditFontSize
+        validator: IntValidator{bottom: 1; top: 65535;}
+
+        onEditingFinished: root.editingFinished()
+        onTextChanged: root.textChanged()
+        text: persistentSettings.i2pOutPort
+  }
 }

@@ -41,6 +41,8 @@ Rectangle {
     property alias pageHeight: pageRoot.height
     property string viewName: "wizardModeSelection1"
     property bool portable: persistentSettings.portable
+    property bool i2p_partial: persistentSettings.i2p_partial
+    property bool i2p_full: persistentSettings.i2p_full
     property bool simpleModeAvailable: !isTails && appWindow.persistentSettings.nettype == 0 && !isAndroid
 
     function applyWalletMode(mode, wizardState) {
@@ -169,7 +171,37 @@ Rectangle {
 
                 onMenuClicked: wizardModeSelection1.portable = !wizardModeSelection1.portable
             }
+            WizardMenuItem {
+                Layout.topMargin: 20
+                headerText: qsTr("Partial I2P Mode") + translationManager.emptyString
+                bodyText: qsTr("Use the I2P network to obfuscate your transaction traffic. Syncing the blockchain will still occur over clearnet.") + translationManager.emptyString
+                checkbox: true
+                checked: wizardModeSelection1.i2p_partial
+                onMenuClicked: {
+                    if (wizardModeSelection1.i2p_partial) {
+                        wizardModeSelection1.i2p_partial = false;
+                    } else {
+                        wizardModeSelection1.i2p_partial = true;
+                        wizardModeSelection1.i2p_full = false;
+                    }
+                }
+            }
+            WizardMenuItem {
+                Layout.topMargin: 20
+                headerText: qsTr("Full I2P Mode") + translationManager.emptyString
+                bodyText: qsTr("Use the I2P network to obfuscate all Monero networking traffic. This includes wallet syncing, which can reduce sync speed. When Advanced Mode is selected, the blockchain is also downloaded via I2P, which may take a considerable amount of time.") + translationManager.emptyString
+                checkbox: true
+                checked: wizardModeSelection1.i2p_full
 
+                onMenuClicked: {
+                    if (wizardModeSelection1.i2p_full) {
+                        wizardModeSelection1.i2p_full = false;
+                    } else {
+                        wizardModeSelection1.i2p_full = true;
+                        wizardModeSelection1.i2p_partial = false;
+                    }
+                }
+            }
             WizardNav {
                 Layout.topMargin: 5
                 btnPrevText: qsTr("Back to menu") + translationManager.emptyString

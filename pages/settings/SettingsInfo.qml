@@ -125,6 +125,35 @@ Rectangle {
                 color: MoneroComponents.Style.dividerColor
                 opacity: MoneroComponents.Style.dividerOpacity
             }
+            MoneroComponents.TextBlock {
+                id: guiI2PVersion
+                font.pixelSize: 14
+                text: qsTr("Embedded I2P version: ") + translationManager.emptyString
+            }
+
+            MoneroComponents.TextBlock {
+                font.pixelSize: 14
+                color: MoneroComponents.Style.dimmedFontColor
+                text: i2pVersion
+            }
+
+            Rectangle {
+                height: 1
+                Layout.topMargin: 2
+                Layout.bottomMargin: 2
+                Layout.fillWidth: true
+                color: MoneroComponents.Style.dividerColor
+                opacity: MoneroComponents.Style.dividerOpacity
+            }
+
+            Rectangle {
+                height: 1
+                Layout.topMargin: 2
+                Layout.bottomMargin: 2
+                Layout.fillWidth: true
+                color: MoneroComponents.Style.dividerColor
+                opacity: MoneroComponents.Style.dividerOpacity
+            }
 
             MoneroComponents.TextBlock {
                 Layout.fillWidth: true
