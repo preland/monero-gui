@@ -707,7 +707,9 @@ ApplicationWindow {
         if (currentWallet)
             currentWallet.refreshHeightAsync();
     }
-
+    function installI2PD(){
+      i2pManager.I2PInstall();
+    }
     function startDaemon(flags){
         daemonStartStopInProgress = 1;
 

@@ -48,7 +48,7 @@ std::string get_url_redirect(std::string url) {
     CURL *curl;
     CURLcode res;
     char *effective_url = nullptr;
-
+    std::string str = "";
     curl = curl_easy_init();
     if (curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -70,6 +70,7 @@ std::string get_url_redirect(std::string url) {
 
             if (effective_url) {
                 std::cout << "Effective URL: " << effective_url << std::endl;
+                str = std::string(effective_url);
             } else {
                 std::cerr << "Could not retrieve effective URL." << std::endl;
             }
@@ -82,7 +83,7 @@ std::string get_url_redirect(std::string url) {
     } else {
         std::cerr << "Could not initialize cURL." << std::endl;
     }
-    std::string str(effective_url);
+    /*std::cout << "sadf: " << (effective_url == nullptr) << std::endl;*/
     return str;
 }
 

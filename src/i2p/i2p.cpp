@@ -21,7 +21,10 @@
 //...is that it? that might be it.
 #include "i2p.h"
 #include "curl_effective_url.h"
+#include <cstddef>
 #include <curl/curl.h>
+#include <curl/easy.h>
+#include <ostream>
 #include <string>
 #include <QElapsedTimer>
 #include <QFile>
@@ -147,40 +150,70 @@ bool I2PManager::I2PInstall() {
     return false;
   }
 std::string url = get_url_redirect("https://github.com/PurpleI2P/i2pd/releases/latest");
-std::string version = url.substr(url.find_last_of('/')+1);
-  if(version == "latest"){
+std::cout << "url: [" << url << "]" << std::endl;
+std::cout << "url size: " << url.length() << std::endl;
+size_t last_slash = url.rfind('/');
+std::cout << "lastpos: " << last_slash << std::endl;
+std::string version = url.substr(last_slash + 1);
+  if(version == "latest" || last_slash == std::string::npos){
     qCritical() << "getting i2pd version failed";
     return false;
   }
+  std::cout << version << std::endl;
   std::string filename = "";
+  std::string sep = "";
 #ifdef Q_OS_WIN
-  filename = "setup_i2pd_v" + version = ".exe"; //this is probably wrong
+  filename = "setup_i2pd_v" + version = ".exe"; //this is definitely wrong
+  sep = "\\";
 #endif
 #ifdef Q_OS_MACOS
   filename = "i2pd_" + version + "_osx.tar.gz";
+  sep = "/";
 #endif
 #ifdef Q_OS_LINUX
   filename = "i2pd_" + version + "-1bookworm1_amd64.deb";
+  sep = "/";
 #endif
+  std::cout << "2\n";
   if(filename == ""){
     qCritical() << "unsupported platform";
     return false;
   }
-    CURL *curl;
+  CURL *curl;
   FILE *fp;
   CURLcode res;
-  std::string downloadurl = url + filename;
-  std::string outfilename = QApplication::applicationDirPath().toStdString() + "/" + filename;
+  std::string downloadurl = "https://www.github.com/PurpleI2P/i2pd/releases/download/"+ version + "/" + filename;
+  std::cout << downloadurl << std::endl;
+  std::string outfilename = QApplication::applicationDirPath().toStdString() + sep + filename;
+  std::cout << outfilename << std::endl;
+
+  curl_global_init(CURL_GLOBAL_ALL);
   curl = curl_easy_init();
   if (curl) {
-    fp = fopen(outfilename.c_str(),"wb");
-    curl_easy_setopt(curl, CURLOPT_URL, url);
+
+    /* Switch on full protocol/debug output while testing */ 
+    curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+
+    /* disable progress meter, set to 0L to enable and disable debug output */ 
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
+    curl_easy_setopt(curl, CURLOPT_URL, downloadurl.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-    res = curl_easy_perform(curl);
-    curl_easy_cleanup(curl);
-    fclose(fp);
+
+    fp = fopen(outfilename.c_str(),"wb");
+    if(fp) {
+      curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+      res = curl_easy_perform(curl);
+      fclose(fp);
+    }
   }
+  curl_easy_cleanup(curl);
+  curl_global_cleanup();
+
+  std::cout << "we succeeded\n";
+
+  return true;
 }
 I2PManager::I2PManager(QObject *parent)
     : QObject(parent)

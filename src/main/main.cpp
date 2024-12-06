@@ -77,6 +77,7 @@
 
 // IOS exclusions
 #ifndef Q_OS_IOS
+#include "i2p/i2p.h"
 #include "daemon/DaemonManager.h"
 #include "p2pool/P2PoolManager.h"
 #endif
@@ -472,10 +473,12 @@ Verify update binary using 'shasum'-compatible (SHA256 algo) output signed by tw
 
     engine.rootContext()->setContextProperty("tailsUsePersistence", TailsOS::usePersistence);
 
-// Exclude daemon manager from IOS
+// Exclude daemon manager and i2pd from IOS
 #ifndef Q_OS_IOS
+    I2PManager i2pManager;
     DaemonManager daemonManager;
     P2PoolManager p2poolManager;
+    engine.rootContext()->setContextProperty("i2pManager", &i2pManager);
     engine.rootContext()->setContextProperty("daemonManager", &daemonManager);
     engine.rootContext()->setContextProperty("p2poolManager", &p2poolManager);
 #endif

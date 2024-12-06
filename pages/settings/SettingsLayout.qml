@@ -303,7 +303,17 @@ Rectangle {
                 persistentSettings.i2pPeerAddrCmd = i2pEdit.getPeerAddressesFormatted();
 
                 //todo: add button to manually restart monerod
-          }
+              }
+              MoneroComponents.StandardButton {
+                visible: i2pCheckbox.enabled
+                small: true
+                text: qsTr("Install i2pd cuz idk lulz") + translationManager.emptyString
+                onClicked: {
+                    //writeCSVFileDialog.open();
+                    appWindow.installI2PD();
+                }
+            }
+
         }
 
         MoneroComponents.StandardButton {
