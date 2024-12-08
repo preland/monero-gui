@@ -534,7 +534,7 @@ Verify update binary using 'shasum'-compatible (SHA256 algo) output signed by tw
 
     engine.rootContext()->setContextProperty("moneroVersion", MONERO_VERSION_FULL);
     
-    engine.rootContext()->setContextProperty("i2pVersion", "TODO:impl");
+    engine.rootContext()->setContextProperty("i2pVersion", i2pManager.checkI2PVersion());
     // Load main window (context properties needs to be defined obove this line)
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
     if (engine.rootObjects().isEmpty())

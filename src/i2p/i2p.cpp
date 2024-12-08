@@ -55,16 +55,19 @@ bool I2PManager::start(const QString &flags){
     return false;
   }
 
-  QStringList arguments;
-  //todo: figure out static flags here
+  QStringList arguments = QStringList() 
+    << "--conf" << m_i2pd_config 
+    << "--tunconf" << m_i2pd_tunconf
+    << "--tunnelsdir" << m_i2pd_tunnelsdir
+    << "--certsdir" << m_i2pd_certsdir;
 
-  //custom flags
+//custom flags
   foreach (const QString &str, flags.split(" ")) {
           qDebug() << QString(" [%1] ").arg(str);
           if (!str.isEmpty())
             arguments << str;
     }
-  qDebug() << "starting i2pd " + m_i2pd;
+  qDebug() << "starting i2pd " + m_i2pd_executable;
   qDebug() << "With command line arguments " << arguments;
   QMutexLocker locker(&m_daemonMutex);
   m_daemon.reset(new QProcess());
@@ -74,7 +77,7 @@ bool I2PManager::start(const QString &flags){
   connect(m_daemon.get(), SIGNAL(readyReadStandardError()), this, SLOT(printError()));
 
   // Start i2pd 
-  bool started = m_daemon->startDetached(m_i2pd, arguments);
+  bool started = m_daemon->startDetached(m_i2pd_executable, arguments);
 
   // add state changed listener
   connect(m_daemon.get(), SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(stateChanged(QProcess::ProcessState)));
@@ -130,7 +133,7 @@ QString I2PManager::checkI2PVersion() {
   QStringList arguments = {"--version"};
   if(m_version.length() <= 0) {
     QProcess *proc = new QProcess();
-    proc->start(m_i2pd, arguments);
+    proc->start(m_i2pd_executable, arguments);
     //if this takes longer than 5 seconds it will give up
     proc->waitForFinished(5000);
 
@@ -140,13 +143,17 @@ QString I2PManager::checkI2PVersion() {
   return m_version;
 }
 bool I2PManager::checkI2PInstalled() {
-  if(QFileInfo(m_i2pd).isFile()) {
+  if(QFileInfo(m_i2pd_executable).isFile()) {
     return true;
   }
   return false;
 }
 bool I2PManager::I2PInstall() {
+  //todo: fix this below
+  std::string i2pd_folder = QApplication::applicationDirPath().toStdString() + "/i2pd";
+  QDir().mkdir(i2pd_folder.c_str());
   if(checkI2PInstalled()) {
+    //todo: add reinstall functionality
     return false;
   }
 std::string url = get_url_redirect("https://github.com/PurpleI2P/i2pd/releases/latest");
@@ -184,7 +191,7 @@ std::string version = url.substr(last_slash + 1);
   CURLcode res;
   std::string downloadurl = "https://www.github.com/PurpleI2P/i2pd/releases/download/"+ version + "/" + filename;
   std::cout << downloadurl << std::endl;
-  std::string outfilename = QApplication::applicationDirPath().toStdString() + sep + filename;
+  std::string outfilename = i2pd_folder + sep + filename;
   std::cout << outfilename << std::endl;
 
   curl_global_init(CURL_GLOBAL_ALL);
@@ -210,7 +217,20 @@ std::string version = url.substr(last_slash + 1);
   }
   curl_easy_cleanup(curl);
   curl_global_cleanup();
+  
+  //extract data.tar.xz
 
+  std::string arCmd = "ar x " + outfilename + " data.tar.xz";
+  if (std::system(arCmd.c_str()) != 0) {
+    qCritical() << "Error extracting data.tar.xz";
+    return false;
+  }
+  //extract from data.tar.xz
+  std::string tarCmd = "tar -xf data.tar.xz -C " + QApplication::applicationDirPath().toStdString() + "/i2pd";
+  if (std::system(tarCmd.c_str()) != 0) {
+    qCritical() << "Error extracting files from data.tar.xz";
+    return false;
+  }
   std::cout << "we succeeded\n";
 
   return true;
@@ -220,15 +240,25 @@ I2PManager::I2PManager(QObject *parent)
     , m_scheduler(this)
 {
 
-    // Platform dependent path to monerod
+    // Platform dependent path to i2pd files
 #ifdef Q_OS_WIN
-    m_i2pd = QApplication::applicationDirPath() + "/i2pd.exe";
+    m_i2pd_dir = QApplication::applicationDirPath() + "\\i2pd";
+    m_i2pd_executable = m_i2pd_dir + "TODOOOOO";
+    m_i2pd_config = m_i2pd_dir + "TODOOOOO";
+    m_i2pd_tunconf = m_i2pd_dir + "TODOOOOO";
+    m_i2pd_tunnelsdir = m_i2pd_dir + "TODOOOO";
+    m_i2pd_certsdir = m_i2pd_dir + "TODOOOO";
 #endif
 #ifdef Q_OS_UNIX
-    m_i2pd = QApplication::applicationDirPath() + "/i2pd";
+    m_i2pd_dir = QApplication::applicationDirPath() + "/i2pd";
+    m_i2pd_executable = m_i2pd_dir + "/usr/bin/i2pd";
+    m_i2pd_config = m_i2pd_dir + "/etc/i2pd/i2pd.conf";
+    m_i2pd_tunconf = m_i2pd_dir + "/etc/i2pd/tunnels.conf";
+    m_i2pd_tunnelsdir = m_i2pd_dir + "/etc/i2pd/tunnels.conf.d";
+    m_i2pd_certsdir = m_i2pd_dir + "/usr/share/i2pd/certificates";
 #endif
 
-    if (m_i2pd.length() == 0) {
+    if (m_i2pd_dir.length() == 0) {
         qCritical() << "no i2p binary defined for current platform";
     }
 }

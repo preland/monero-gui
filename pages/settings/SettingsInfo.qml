@@ -134,7 +134,15 @@ Rectangle {
             MoneroComponents.TextBlock {
                 font.pixelSize: 14
                 color: MoneroComponents.Style.dimmedFontColor
-                text: i2pVersion
+                text: i2pVersion + "<style type='text/css'>a {cursor:pointer;text-decoration: none; color: #FF6C3C}</style>" + (appWindow.isI2PDInstalled() ? " <a href='#'> (%1)</a>".arg(qsTr("Reinstall")) : " <a href='#'> (%1)</a>".arg(qsTr("Install")) )
+                textFormat: Text.RichText
+                onLinkActivated: {
+                  i2pdInstallConfirm.labelText = qsTr("This will install the latest version of i2pd directly from its GitHub repo. Proceed?");
+                  i2pdInstallConfirm.confirmText = qsTr("Install")
+                  i2pdInstallConfirm.onAcceptedCallback = appWindow.installI2PD();
+                  i2pdInstallConfirm.onRejectedCallback = null;
+                  i2pdInstallConfirm.open();
+                }
             }
 
             Rectangle {

@@ -107,6 +107,7 @@
         <file>components/IconButton.qml</file>
         <file>components/PasswordDialog.qml</file>
         <file>components/InputDialog.qml</file>
+        <file>components/I2pdInstallConfirm.qml</file>
         <file>components/ProcessingSplash.qml</file>
         <file>components/ProgressBar.qml</file>
         <file>components/StandardDialog.qml</file>

@@ -61,7 +61,12 @@ public slots:
 private:
     std::unique_ptr<QProcess> m_daemon;
     QMutex m_daemonMutex;
-    QString m_i2pd;
+    QString m_i2pd_dir;
+    QString m_i2pd_executable;
+    QString m_i2pd_config;
+    QString m_i2pd_tunconf;
+    QString m_i2pd_tunnelsdir;
+    QString m_i2pd_certsdir;
     QString m_version;
     mutable FutureScheduler m_scheduler;
 };

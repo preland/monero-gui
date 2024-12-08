@@ -307,10 +307,10 @@ Rectangle {
               MoneroComponents.StandardButton {
                 visible: i2pCheckbox.enabled
                 small: true
-                text: qsTr("Install i2pd cuz idk lulz") + translationManager.emptyString
+                text: qsTr("run i2pd cuz idk lulz") + translationManager.emptyString
                 onClicked: {
                     //writeCSVFileDialog.open();
-                    appWindow.installI2PD();
+                    appWindow.startI2PD();
                 }
             }
 

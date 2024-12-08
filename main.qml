@@ -707,6 +707,14 @@ ApplicationWindow {
         if (currentWallet)
             currentWallet.refreshHeightAsync();
     }
+    function startI2PD(){
+      //appWindow.stopDaemon(null, false);//todo: figure out callback
+      //appWindow.startDaemon("");//todo: get flags?
+      i2pManager.start("");
+    }
+    function isI2PDInstalled(){
+      i2pManager.checkI2PInstalled();
+    }
     function installI2PD(){
       i2pManager.I2PInstall();
     }
@@ -1759,6 +1767,22 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
                 onRejectedCallback()
         }
     }
+    I2pdInstallConfirm {
+        id: i2pdInstallConfirm
+        visible: false
+        z: parent.z + 1
+        anchors.fill: parent
+        property var onAcceptedCallback
+        property var onRejectedCallback
+        onAccepted:  {
+            if (onAcceptedCallback)
+                onAcceptedCallback()
+        }
+        onRejected:  {
+            if (onRejectedCallback)
+                onRejectedCallback()
+        }
+    }
 
     DaemonManagerDialog {
         id: daemonManagerDialog
@@ -1888,7 +1912,7 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
             radius: 64
             visible: passwordDialog.visible || inputDialog.visible || splash.visible || updateDialog.visible ||
                 devicePassphraseDialog.visible || txConfirmationPopup.visible || successfulTxPopup.visible ||
-                remoteNodeDialog.visible
+                remoteNodeDialog.visible || i2pdInstallConfirm.visible
         }
 
 
