@@ -127,6 +127,8 @@ ApplicationWindow {
     property var current_address_label: "Primary"
     property int current_subaddress_table_index: 0
 
+    property string current_monerod_flags: ""
+
     function showPageRequest(page) {
         middlePanel.state = page
         leftPanel.selectItem(page)
@@ -550,6 +552,9 @@ ApplicationWindow {
         // Force switch normal view
         rootItem.state = "normal";
 
+        // Check for I2P version if applicable
+          i2pManager.checkI2PVersion();
+
         // Process queued IPC command
         if(typeof IPC !== "undefined" && IPC.queuedCmd().length > 0){
             var queuedCmd = IPC.queuedCmd();
@@ -708,12 +713,17 @@ ApplicationWindow {
             currentWallet.refreshHeightAsync();
     }
     function startI2PD(){
-      //appWindow.stopDaemon(null, false);//todo: figure out callback
-      //appWindow.startDaemon("");//todo: get flags?
-      i2pManager.start("");
+      //if (appWindow.daemonRunning) {
+      //      appWindow.stopDaemon(function() {
+      //          appWindow.startDaemon(current_monerod_flags)
+      //      });
+      //  } else {
+      //      appWindow.startDaemon(current_monerod_flags);
+      //  }
+      //i2pManager.start("");
     }
     function isI2PDInstalled(){
-      i2pManager.checkI2PInstalled();
+      return i2pManager.checkI2PInstalled();
     }
     function installI2PD(){
       i2pManager.I2PInstall();
@@ -727,8 +737,16 @@ ApplicationWindow {
         const noSync = appWindow.walletMode === 0;
         const bootstrapNodeAddress = persistentSettings.walletMode < 2 ? "auto" : persistentSettings.bootstrapNodeAddress
         if (persistentSettings.i2p_partial) {
-          flags+= " --tx-proxy i2p,127.0.0.1:" + persistentSettings.i2pOutPort + " " + persistentSettings.i2pPeerAddrCmd;
+          console.log("its true");
+          flags+= " --anonymous-inbound=" + i2pManager.getInboundAddress() + ",127.0.0.1:18085 -tx-proxy i2p,127.0.0.1:4447,disable_noise"; //+ persistentSettings.i2pOutPort; //+ " " + persistentSettings.i2pPeerAddrCmd;
+          if(isI2PDInstalled()){
+            startI2PD();
+          }
+        } else {
+          console.log("it aint");
         }
+
+    appWindow.current_monerod_flags = flags;
 daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockchainDataDir, bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain);
     }
 
@@ -1339,7 +1357,6 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
             daemonManager.daemonStartFailure.connect(onDaemonStartFailure);
             daemonManager.daemonStopped.connect(onDaemonStopped);
         }
-
         // Connect app exit to qml window exit handling
         mainApp.closing.connect(appWindow.close);
 
@@ -1467,8 +1484,8 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
         property bool i2p_full: false
         property string i2pInPort: "8061"
         property string i2pOutPort: "8060"
-        property string i2pPeerAddr: "TODO:GETLEGITPEERS.b32.i2p"
-        property string i2pPeerAddrCmd: "--add-peer TODO:GETLEGITPEERS.b32.i2p"
+        //property string i2pPeerAddr: "TODO:GETLEGITPEERS.b32.i2p"
+        //property string i2pPeerAddrCmd: "--add-peer TODO:GETLEGITPEERS.b32.i2p"
         function getProxyAddress() {
             if ((socksProxyFlagSet && socksProxyFlag == "") || !proxyEnabled) {
                 return "";
@@ -2181,6 +2198,9 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
 
 
         }
+        
+        // exit I2PD if applicable
+        i2pManager.exit();
 
         // If daemon is running - prompt user before exiting
         if(daemonManager == undefined || persistentSettings.useRemoteNode) {

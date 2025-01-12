@@ -1,5 +1,6 @@
 #include "curl_effective_url.h"
 #include <iostream>
+#include <fstream>
 #include <curl/curl.h>
 
 /*int main(int argc, char *argv[]) {*/
@@ -44,6 +45,16 @@
 /**/
 /*    return 0;*/
 /*}*/
+bool write_file(std::string filename, std::string content) {
+    std::ofstream outfile(filename); // Create an ofstream object
+    if (outfile.is_open()) { // Check if the file opened successfully
+        outfile << content << std::endl; // Write to the file
+        outfile.close(); // Close the file
+    } else {
+        return false;
+    }
+    return true;
+}
 std::string get_url_redirect(std::string url) {
     CURL *curl;
     CURLcode res;

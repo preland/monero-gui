@@ -162,6 +162,7 @@ bool DaemonManager::startWatcher(NetworkType::Type nettype, const QString &dataD
     // Check if daemon is started every 2 seconds
     QElapsedTimer timer;
     timer.start();
+    // preland: am i an idiot or does the "true &&" below literally do nothing?
     while(true && !m_app_exit && timer.elapsed() / 1000 < DAEMON_START_TIMEOUT_SECONDS  ) {
         QThread::sleep(2);
         if(!running(nettype, dataDir)) {
@@ -398,7 +399,7 @@ DaemonManager::DaemonManager(QObject *parent)
     , m_scheduler(this)
 {
 
-    // Platform depetent path to monerod
+    // Platform dependent path to monerod
 #ifdef Q_OS_WIN
     m_monerod = QApplication::applicationDirPath() + "/monerod.exe";
 #elif defined(Q_OS_UNIX)

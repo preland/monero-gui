@@ -40,10 +40,10 @@ GridLayout {
     id: root
     property alias i2pOutPortText: i2pOutPort.text
     property alias i2pInPortText: i2pInPort.text
-    property alias i2pAddrText: i2pAddr.text
+    //property alias i2pAddrText: i2pAddr.text
     property alias i2pOutPortLabelText: i2pOutPort.labelText
     property alias i2pInPortLabelText: i2pInPort.labelText
-    property alias i2pAddrLabelText: i2pAddr.labelText
+    //property alias i2pAddrLabelText: i2pAddr.labelText
 
     //property string initialAddress: ""
     //property var initialHostPort: initialAddress.match(/^(.*?)(?:\:?(\d*))$/)
@@ -89,17 +89,17 @@ GridLayout {
     function getOutPort() {
       return i2pOutPort.text.trim();
     }
-    function getPeerAddresses() {
-      return i2pAddr.text.trim();
-    }
-    function getPeerAddressesFormatted() {
-      var addrArray = i2pAddr.text.trim().split(",");
-      var str = "";
-      addrArray.forEach(addr => {
-        str+="--add-peer " + addr + " ";
-      });
-      return str.trim();
-    }
+    //function getPeerAddresses() {
+    //  return i2pAddr.text.trim();
+    //}
+    //function getPeerAddressesFormatted() {
+    //  var addrArray = i2pAddr.text.trim().split(",");
+    //  var str = "";
+    //  addrArray.forEach(addr => {
+    //    str+="--add-peer " + addr + " ";
+    //  });
+    //  return str.trim();
+    //}
         //MoneroComponents.LineEdit {
     //    id: daemonAddr
     //    Layout.preferredWidth: root.width/3
@@ -143,27 +143,27 @@ GridLayout {
     //    text: initialHostPort[2]
     //}
   
-    MoneroComponents.LineEdit {
-        id: i2pAddr
-        Layout.preferredWidth: root.width/3
-        placeholderText: qsTr("XX...XX.b32.i2p,YY...YY.b32.i2p,etc.") + translationManager.emptyString
-        placeholderFontFamily: root.placeholderFontFamily
-        placeholderFontBold: root.placeholderFontBold
-        placeholderFontSize: root.placeholderFontSize
-        placeholderColor: root.placeholderColor
-        placeholderOpacity: root.placeholderOpacity
-        labelFontSize: root.labelFontSize
-        backgroundColor: lineEditBackgroundColor
-        fontColor: lineEditFontColor
-        fontBold: lineEditFontBold
-        fontSize: lineEditFontSize
-        onEditingFinished: {
-            //text = text.replace(ipv6Regex, "[$1]");
-            root.editingFinished();
-        }
-        onTextChanged: root.textChanged()
-        text: persistentSettings.i2pPeerAddr
-  }
+  //  MoneroComponents.LineEdit {
+  //      id: i2pAddr
+  //      Layout.preferredWidth: root.width/3
+  //      placeholderText: qsTr("XX...XX.b32.i2p,YY...YY.b32.i2p,etc.") + translationManager.emptyString
+  //      placeholderFontFamily: root.placeholderFontFamily
+  //      placeholderFontBold: root.placeholderFontBold
+  //      placeholderFontSize: root.placeholderFontSize
+  //      placeholderColor: root.placeholderColor
+  //      placeholderOpacity: root.placeholderOpacity
+  //      labelFontSize: root.labelFontSize
+  //      backgroundColor: lineEditBackgroundColor
+  //      fontColor: lineEditFontColor
+  //      fontBold: lineEditFontBold
+  //      fontSize: lineEditFontSize
+  //      onEditingFinished: {
+  //          //text = text.replace(ipv6Regex, "[$1]");
+  //          root.editingFinished();
+  //      }
+  //      onTextChanged: root.textChanged()
+  //      text: persistentSettings.i2pPeerAddr
+  //}
   MoneroComponents.LineEdit {
         id: i2pInPort
         Layout.preferredWidth: root.width/3

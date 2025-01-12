@@ -29,6 +29,7 @@
         <file>components/ContextMenu.qml</file>
         <file>components/ContextMenuItem.qml</file>
         <file>components/NetworkStatusItem.qml</file>
+        <file>components/I2PStatusItem.qml</file>
         <file>components/Input.qml</file>
         <file>components/StandardButton.qml</file>
         <file>components/LineEdit.qml</file>

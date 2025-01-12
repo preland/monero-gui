@@ -278,6 +278,17 @@ Rectangle {
             checked: persistentSettings.i2p_partial
             onClicked: {
                 persistentSettings.i2p_partial = !persistentSettings.i2p_partial;
+                //here the fun begins
+                proxyCheckbox.enabled = !persistentSettings.i2p_partial;
+                persistentSettings.proxyEnabled = persistentSettings.i2p_partial;
+                persistentSettings.proxyAddress = "127.0.0.1:4447";
+                remoteNodesModel.appendIfNotExists({
+                  address: i2pManager.getAddress(),
+                  username: "",
+                  password: "",
+                  trusted: true,
+                });
+
             }
             text: qsTr("Use I2P for transactions")
         }
@@ -290,17 +301,17 @@ Rectangle {
             placeholderFontSize: 15
             visible: i2pCheckbox.checked
 
-            i2pOutPortLabelText: qsTr("I2P Outgoing Port") + translationManager.emptyString
-            i2pInPortLabelText: qsTr("I2P Incoming Port") + translationManager.emptyString
-            i2pAddrLabelText: qsTr("I2P Peer IP addresses") + translationManager.emptyString
+            //i2pOutPortLabelText: qsTr("I2P Outgoing Port") + translationManager.emptyString
+            //i2pInPortLabelText: qsTr("I2P Incoming Port") + translationManager.emptyString
+            //i2pAddrLabelText: qsTr("I2P Peer IP addresses") + translationManager.emptyString
 
             //initialAddress: socksProxyFlagSet ? socksProxyFlag : persistentSettings.proxyAddress
             onEditingFinished: {
                 //persistentSettings.proxyAddress = proxyEdit.getAddress();
-                persistentSettings.i2pInPort = i2pEdit.getInPort();
-                persistentSettings.i2pOutPort = i2pEdit.getOutPort();
-                persistentSettings.i2pPeerAddr = i2pEdit.getPeerAddresses();
-                persistentSettings.i2pPeerAddrCmd = i2pEdit.getPeerAddressesFormatted();
+                //persistentSettings.i2pInPort = i2pEdit.getInPort();
+                //persistentSettings.i2pOutPort = i2pEdit.getOutPort();
+                //persistentSettings.i2pPeerAddr = i2pEdit.getPeerAddresses();
+                //persistentSettings.i2pPeerAddrCmd = i2pEdit.getPeerAddressesFormatted();
 
                 //todo: add button to manually restart monerod
               }

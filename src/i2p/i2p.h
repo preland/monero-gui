@@ -32,6 +32,7 @@
 class I2PManager : public QObject
 {
   Q_OBJECT
+  Q_PROPERTY(QString version READ version NOTIFY versionTextChanged)
 public:
      explicit I2PManager(QObject *parent = 0);
     ~I2PManager();
@@ -44,13 +45,18 @@ public:
     Q_INVOKABLE void runningAsync() const;
     // Send daemon command from qml and prints output in console window.
     Q_INVOKABLE void exit();
-    Q_INVOKABLE QString checkI2PVersion();
+    Q_INVOKABLE void checkI2PVersion();
     Q_INVOKABLE bool checkI2PInstalled();
     Q_INVOKABLE bool I2PInstall();
+    Q_INVOKABLE QString getAddress();
+    QString version() const {
+      return m_version;
+    }
 private:
     bool startWatcher() const;
     bool stopWatcher() const;
 signals:
+    void versionTextChanged();
     void daemonStarted() const;
     void daemonStopped() const;
     void daemonStartFailure(const QString &error) const;
@@ -61,7 +67,9 @@ public slots:
 private:
     std::unique_ptr<QProcess> m_daemon;
     QMutex m_daemonMutex;
+    QString m_sep;
     QString m_i2pd_dir;
+    QString m_i2pd_download_dir;
     QString m_i2pd_executable;
     QString m_i2pd_config;
     QString m_i2pd_tunconf;

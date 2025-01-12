@@ -174,7 +174,7 @@ Rectangle {
             WizardMenuItem {
                 Layout.topMargin: 20
                 headerText: qsTr("Partial I2P Mode") + translationManager.emptyString
-                bodyText: qsTr("Use the I2P network to obfuscate your transaction traffic. Syncing the blockchain will still occur over clearnet.") + translationManager.emptyString
+                bodyText: qsTr("Use the I2P network to obfuscate your transaction traffic. Syncing the blockchain will still occur over clearnet. Only applicable for Advanced Mode and Simple Mode (bootstrap)") + translationManager.emptyString
                 checkbox: true
                 checked: wizardModeSelection1.i2p_partial
                 onMenuClicked: {
@@ -187,19 +187,20 @@ Rectangle {
                 }
             }
             WizardMenuItem {
+                opacity: 0.5
                 Layout.topMargin: 20
                 headerText: qsTr("Full I2P Mode") + translationManager.emptyString
-                bodyText: qsTr("Use the I2P network to obfuscate all Monero networking traffic. This includes wallet syncing, which can reduce sync speed. When Advanced Mode is selected, the blockchain is also downloaded via I2P, which may take a considerable amount of time.") + translationManager.emptyString
+                bodyText: qsTr("Use the I2P network to obfuscate all Monero networking traffic. This includes wallet syncing, which can reduce sync speed. When Advanced Mode is selected, the blockchain is also downloaded via I2P, which may take a considerable amount of time. Currently unimplemented.") + translationManager.emptyString
                 checkbox: true
                 checked: wizardModeSelection1.i2p_full
 
                 onMenuClicked: {
-                    if (wizardModeSelection1.i2p_full) {
-                        wizardModeSelection1.i2p_full = false;
-                    } else {
-                        wizardModeSelection1.i2p_full = true;
-                        wizardModeSelection1.i2p_partial = false;
-                    }
+                    //if (wizardModeSelection1.i2p_full) {
+                    //    wizardModeSelection1.i2p_full = false;
+                    //} else {
+                    //    wizardModeSelection1.i2p_full = true;
+                    //    wizardModeSelection1.i2p_partial = false;
+                    //}
                 }
             }
             WizardNav {

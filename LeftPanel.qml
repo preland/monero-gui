@@ -509,16 +509,46 @@ Rectangle {
         } // Column
 
         } // Flickable
-
         Rectangle {
-            id: separator
+            id: separator1
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.leftMargin: 0
             anchors.rightMargin: 0
-            anchors.bottom: progressBar.visible ? progressBar.top : networkStatus.top
+            anchors.bottom: progressBar1.visible ? progressBar1.top : networkStatus1.top
             height: 10
             color: "transparent"
+        }
+
+        MoneroComponents.ProgressBar {
+            id: i2pdProgressBar
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: i2pdStatus.top
+            syncType: qsTr("Daemon") + translationManager.emptyString
+            visible: !appWindow.disconnected
+            height: 62
+        }
+        
+        MoneroComponents.I2PStatusItem {
+            id: i2pdStatus
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.leftMargin: 5
+            anchors.rightMargin: 0
+            anchors.bottom: separator.top
+            anchors.bottomMargin: 5
+            connected: Wallet.ConnectionStatus_Disconnected
+            height: 48
+        }
+
+        MoneroComponents.MenuButtonDivider {
+            id: separator
+            visible: settingsButton.present
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: progressBar.visible ? progressBar.top : networkStatus.top
+            anchors.leftMargin: 20
         }
 
         MoneroComponents.ProgressBar {
