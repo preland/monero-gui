@@ -36,6 +36,7 @@ class I2PManager : public QObject
 public:
      explicit I2PManager(QObject *parent = 0);
     ~I2PManager();
+    Q_INVOKABLE bool enableI2P(bool enable, const QString &flags, int mode);
 
     Q_INVOKABLE bool start(const QString &flags);
     Q_INVOKABLE void stopAsync();

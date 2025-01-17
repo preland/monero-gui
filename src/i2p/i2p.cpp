@@ -53,6 +53,32 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return written;
 }
 
+bool I2PManager::enableI2P(bool enable, const QString &flags, int mode) {
+  QStringList monerod_args;
+  //for now we are just going to shutdown ungracefully
+  exit();
+  if(enable){
+    if(!start(flags))
+      return false;
+    //stop monerod here
+    switch (mode) {
+      case 0: //simple
+        break;
+      case 1: //simple (bootstrap)
+        break;
+      case 2: //advanced
+        monerod_args = QStringList ()
+        << "--proxy=127.0.0.1:4447"
+        << "--daemon-address=" + getAddress()
+        << "--trusted-daemon";
+        break;
+      default:
+        break;
+    }
+  }
+  //restart monerod here
+  return true;
+}
 bool I2PManager::start(const QString &flags){
   if(!checkI2PInstalled()) {
     return false;
@@ -110,7 +136,7 @@ void I2PManager::runningAsync() const {
 
 }
 void I2PManager::exit() {
-  //should use SIGINT to stop gracefully; use SIGKILL in other cases
+  //should use SIGINT to stop i2pd gracefully; use SIGKILL in other cases
   //not sure how to do this in windows though...
   qDebug() << "Killing i2pd";
 #ifdef Q_OS_WIN

@@ -40,12 +40,12 @@ GridLayout {
     id: root
     property alias i2pOutPortText: i2pOutPort.text
     property alias i2pInPortText: i2pInPort.text
-    //property alias i2pAddrText: i2pAddr.text
+    property alias i2pAddrText: i2pAddr.text
     property alias i2pOutPortLabelText: i2pOutPort.labelText
     property alias i2pInPortLabelText: i2pInPort.labelText
-    //property alias i2pAddrLabelText: i2pAddr.labelText
+    property alias i2pAddrLabelText: i2pAddr.labelText
 
-    //property string initialAddress: ""
+    property string initialAddress: ""
     //property var initialHostPort: initialAddress.match(/^(.*?)(?:\:?(\d*))$/)
 
     // TODO: LEGACY; remove these placeHolder variables when
@@ -64,7 +64,7 @@ GridLayout {
 
     // Author: David M. Syzdek https://github.com/syzdek https://gist.github.com/syzdek/6086792
     readonly property var ipv6Regex: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe08:(:[0-9a-fA-F]{1,4}){2,2}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/
-
+    //todo: fix above to check for valid i2p address
     signal editingFinished()
     signal textChanged()
 
@@ -142,28 +142,40 @@ GridLayout {
     //    onTextChanged: root.textChanged()
     //    text: initialHostPort[2]
     //}
-  
-  //  MoneroComponents.LineEdit {
-  //      id: i2pAddr
-  //      Layout.preferredWidth: root.width/3
-  //      placeholderText: qsTr("XX...XX.b32.i2p,YY...YY.b32.i2p,etc.") + translationManager.emptyString
-  //      placeholderFontFamily: root.placeholderFontFamily
-  //      placeholderFontBold: root.placeholderFontBold
-  //      placeholderFontSize: root.placeholderFontSize
-  //      placeholderColor: root.placeholderColor
-  //      placeholderOpacity: root.placeholderOpacity
-  //      labelFontSize: root.labelFontSize
-  //      backgroundColor: lineEditBackgroundColor
-  //      fontColor: lineEditFontColor
-  //      fontBold: lineEditFontBold
-  //      fontSize: lineEditFontSize
-  //      onEditingFinished: {
-  //          //text = text.replace(ipv6Regex, "[$1]");
-  //          root.editingFinished();
-  //      }
-  //      onTextChanged: root.textChanged()
-  //      text: persistentSettings.i2pPeerAddr
-  //}
+    MoneroComponents.CheckBox {
+        id: i2pCheckbox
+        Layout.topMargin: 6
+        enabled: true
+        checked: persistentSettings.i2pUseExternalDaemon
+        onClicked: {
+            persistentSettings.i2pUseExternalDaemon = !persistentSettings.i2pUseExternalDaemon;
+        }
+        text: qsTr("Use External I2P")
+    }
+ 
+    MoneroComponents.LineEdit {
+        id: i2pAddr
+        enabled: i2pCheckbox.enabled
+        visible: i2pCheckbox.visible
+        Layout.preferredWidth: root.width/3
+        placeholderText: qsTr("XX...XX.b32.i2p:port,") + translationManager.emptyString
+        placeholderFontFamily: root.placeholderFontFamily
+        placeholderFontBold: root.placeholderFontBold
+        placeholderFontSize: root.placeholderFontSize
+        placeholderColor: root.placeholderColor
+        placeholderOpacity: root.placeholderOpacity
+        labelFontSize: root.labelFontSize
+        backgroundColor: lineEditBackgroundColor
+        fontColor: lineEditFontColor
+        fontBold: lineEditFontBold
+        fontSize: lineEditFontSize
+        onEditingFinished: {
+            //text = text.replace(ipv6Regex, "[$1]");
+            root.editingFinished();
+        }
+        onTextChanged: root.textChanged()
+        text: persistentSettings.i2pPeerAddr
+  }
   MoneroComponents.LineEdit {
         id: i2pInPort
         Layout.preferredWidth: root.width/3

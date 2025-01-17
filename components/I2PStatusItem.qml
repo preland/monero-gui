@@ -36,9 +36,9 @@ import "../components" as MoneroComponents
 Rectangle {
     id: item
     color: "transparent"
-    property var connected: Wallet.ConnectionStatus_Disconnected
+    property var connected: i2pManager.DaemonStatus_Disconnected
 
-    function getConnectionStatusString(status) {
+    function getDaemonStatusString(status) {
     //todo: figure out how to tell between these different ones
     //todo: remove more of this code
     //todo: add i2p branding images
@@ -53,7 +53,7 @@ Rectangle {
     //            break;
     //    }
         switch (status) {
-            case Wallet.ConnectionStatus_Connected:
+            case i2pManager.DaemonStatus_Connected:
                 //if (!appWindow.daemonSynced)
                 //    return qsTr("Synchronizing");
                 //if (persistentSettings.useRemoteNode && persistentSettings.allowRemoteNodeMining && appWindow.isMining)
@@ -61,14 +61,14 @@ Rectangle {
                 //if (persistentSettings.useRemoteNode)
                 //    return qsTr("Remote node");
                 return qsTr("Connected");
-            case Wallet.ConnectionStatus_WrongVersion:
-                return qsTr("Wrong version");
-            case Wallet.ConnectionStatus_Disconnected:
+            //case Wallet.ConnectionStatus_WrongVersion:
+            //    return qsTr("Wrong version");
+            case i2pManager.DaemonStatus_Disconnected
                 //if (appWindow.walletMode <= 1) {
                 //    return qsTr("Searching node") + translationManager.emptyString;
                 //}
                 return qsTr("Disconnected");
-            case Wallet.ConnectionStatus_Connecting:
+            case i2pManger.DaemonStatus_Connecting:
                 return qsTr("Connecting");
             default:
                 return qsTr("Invalid connection status");

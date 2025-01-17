@@ -1480,11 +1480,12 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
 
         property string proxyAddress: "127.0.0.1:9050"
         property bool proxyEnabled: isTails
+        property bool i2pUseExternalDaemon: false
         property bool i2p_partial: false
         property bool i2p_full: false
         property string i2pInPort: "8061"
         property string i2pOutPort: "8060"
-        //property string i2pPeerAddr: "TODO:GETLEGITPEERS.b32.i2p"
+        property string i2pPeerAddr: ""
         //property string i2pPeerAddrCmd: "--add-peer TODO:GETLEGITPEERS.b32.i2p"
         function getProxyAddress() {
             if ((socksProxyFlagSet && socksProxyFlag == "") || !proxyEnabled) {

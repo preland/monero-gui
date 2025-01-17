@@ -515,7 +515,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.leftMargin: 0
             anchors.rightMargin: 0
-            anchors.bottom: progressBar1.visible ? progressBar1.top : networkStatus1.top
+            anchors.bottom: i2pdProgressBar.visible ? i2pdProgressBar.top : i2pdStatus.visible ? i2pdStatus.top : progressBar.visible ? progressBar.top : networkStatus.top
             height: 10
             color: "transparent"
         }
@@ -526,7 +526,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.bottom: i2pdStatus.top
             syncType: qsTr("Daemon") + translationManager.emptyString
-            visible: !appWindow.disconnected
+            visible: persistentSettings.i2p_partial
             height: 62
         }
         
@@ -539,17 +539,18 @@ Rectangle {
             anchors.bottom: separator.top
             anchors.bottomMargin: 5
             connected: Wallet.ConnectionStatus_Disconnected
+            visible: persistentSettings.i2p_partial
             height: 48
         }
 
         MoneroComponents.MenuButtonDivider {
             id: separator
-            visible: settingsButton.present
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: progressBar.visible ? progressBar.top : networkStatus.top
             anchors.leftMargin: 20
-        }
+            visible: persistentSettings.i2p_partial
+}
 
         MoneroComponents.ProgressBar {
             id: progressBar
