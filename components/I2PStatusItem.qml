@@ -63,7 +63,7 @@ Rectangle {
                 return qsTr("Connected");
             //case Wallet.ConnectionStatus_WrongVersion:
             //    return qsTr("Wrong version");
-            case i2pManager.DaemonStatus_Disconnected
+            case i2pManager.DaemonStatus_Disconnected:
                 //if (appWindow.walletMode <= 1) {
                 //    return qsTr("Searching node") + translationManager.emptyString;
                 //}

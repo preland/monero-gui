@@ -280,7 +280,8 @@ Rectangle {
                 persistentSettings.i2p_partial = !persistentSettings.i2p_partial;
                 //here the fun begins
                 proxyCheckbox.enabled = !persistentSettings.i2p_partial;
-                i2pManager.enableI2P(persistentSettings.i2p_partial, "", persistentSettings.walletMode);
+                //i2pManager.enableI2P(persistentSettings.i2p_partial, "", persistentSettings.walletMode);
+                appWindow.startI2PD();
                 //persistentSettings.proxyEnabled = persistentSettings.i2p_partial;
                 //persistentSettings.proxyAddress = "127.0.0.1:4447";
                 //remoteNodesModel.appendIfNotExists({

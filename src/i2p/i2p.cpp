@@ -47,42 +47,68 @@
 
 namespace {
     static const int DAEMON_START_TIMEOUT_SECONDS = 120;
+    static const int RETRY_DELAY = 1;
 }
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+size_t write_data_file(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
+size_t write_data_str(void *ptr, size_t size, size_t nmemb, void *stream) {
+    size_t totalSize = size * nmemb;
+    std::string *buffer = static_cast<std::string *>(stream);
+    buffer->append(static_cast<char *>(ptr), totalSize);
+    return totalSize;
+}
 
-bool I2PManager::enableI2P(bool enable, const QString &flags, int mode) {
-  QStringList monerod_args;
-  //for now we are just going to shutdown ungracefully
-  exit();
-  if(enable){
-    if(!start(flags))
-      return false;
-    //stop monerod here
-    switch (mode) {
-      case 0: //simple
-        break;
-      case 1: //simple (bootstrap)
-        break;
-      case 2: //advanced
-        monerod_args = QStringList ()
-        << "--proxy=127.0.0.1:4447"
-        << "--daemon-address=" + getAddress()
-        << "--trusted-daemon";
-        break;
-      default:
-        break;
-    }
+/*bool I2PManager::enableI2P(bool enable, const QString &flags, int mode) {*/
+/*  QStringList monerod_args;*/
+/*  //for now we are just going to shutdown ungracefully*/
+/*  exit();*/
+/*  if(enable){*/
+/*    if(!start(flags))*/
+/*      return false;*/
+/*    //stop monerod here*/
+/*    switch (mode) {*/
+/*      case 0: //simple*/
+/*        break;*/
+/*      case 1: //simple (bootstrap)*/
+/*        break;*/
+/*      case 2: //advanced*/
+/*        monerod_args = QStringList ()*/
+/*        << "--proxy=127.0.0.1:4447"*/
+/*        << "--daemon-address=" << getAddress().c_str()*/
+/*        << "--trusted-daemon";*/
+/*        break;*/
+/*      default:*/
+/*        break;*/
+/*    }*/
+/*  }*/
+/*  //restart monerod here*/
+/*  return true;*/
+/*}*/
+std::string I2PManager::getFlags(int mode) {
+  std::string monerod_args("");
+  switch (mode) {
+    case 0: //simple
+      break;
+    case 1: //simple (bootstrap)
+      break;
+    case 2: //advanced
+      monerod_args += std::string("--proxy=127.0.0.1:4447") + "--daemon-address=" + getAddress(5) + "--trusted-daemon";
+      break;
+    default:
+      break;
   }
-  //restart monerod here
-  return true;
+  return monerod_args;
 }
 bool I2PManager::start(const QString &flags){
+          qDebug() << getAddress(1).c_str();
   if(!checkI2PInstalled()) {
     return false;
   }
+
+  exit();
+  sleep(1); //wait for exit before continuing
 
   QStringList arguments = QStringList() 
     << "--conf" << m_i2pd_config 
@@ -92,7 +118,6 @@ bool I2PManager::start(const QString &flags){
 
 //custom flags
   foreach (const QString &str, flags.split(" ")) {
-          qDebug() << QString(" [%1] ").arg(str);
           if (!str.isEmpty())
             arguments << str;
     }
@@ -178,7 +203,7 @@ void I2PManager::checkI2PVersion() {
     //if this takes longer than 5 seconds it will give up
     proc->waitForFinished(5000);
     m_version = proc->readAllStandardOutput().mid(13, 6);
-    //qDebug() m_version << "!!!";
+    qDebug() << m_version << "!!!";
   /*}*/
   emit versionTextChanged();
   return;
@@ -247,14 +272,14 @@ std::string version = url.substr(last_slash + 1);
 
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(curl, CURLOPT_URL, downloadurl.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_file);
 
-    fp = fopen(outfilename.c_str(),"wb");
-    if(fp) {
+    /*fp = fopen(outfilename.c_str(),"wb");*/
+    /*if(fp) {*/
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
       res = curl_easy_perform(curl);
-      fclose(fp);
-    }
+      /*fclose(fp);*/
+    /*}*/
   }
   curl_easy_cleanup(curl);
   curl_global_cleanup();
@@ -310,17 +335,53 @@ keys = monero-mainnet.dat");
 
   return true;
 }
-QString I2PManager::getAddress() {
+int is_server_online(const char *url) {
+    CURL *curl = curl_easy_init();
+    if (!curl) {
+        fprintf(stderr, "Failed to initialize libcurl\n");
+        return 0;
+    }
+
+    CURLcode res;
+    int online = 0;
+
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_NOBODY, 1L); // HEAD request
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); // Connection timeout
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L); // Overall timeout
+    curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L); // Treat HTTP errors as failures
+
+    res = curl_easy_perform(curl);
+    if (res == CURLE_OK) {
+        online = 1; // Server is online
+    } else {
+        fprintf(stderr, "Server check failed: %s\n", curl_easy_strerror(res));
+    }
+
+    curl_easy_cleanup(curl);
+    return online;
+}
+std::string I2PManager::getAddress(int max_retries) {
+  int retries = 0;
   CURL *curl;
   FILE *fp;
   CURLcode res;
-  std::string readBuffer;
-  std::string tunnelurl = "https://127.0.0.1:7070/?page=i2p_tunnels";
+  std::string readBuffer = "";
+  std::string tunnelurl = "http://127.0.0.1:7070/?page=i2p_tunnels";
   std::cout << tunnelurl << std::endl;
-  std::string outfilename = m_i2pd_download_dir.toStdString() + m_sep.toStdString() + "idkwhatthisis";
-  std::cout << outfilename << std::endl;
+  //std::string outfilename = m_i2pd_download_dir.toStdString() + m_sep.toStdString() + "idkwhatthisis";
+  //std::cout << outfilename << std::endl;
 
   curl_global_init(CURL_GLOBAL_ALL);
+  while(retries < max_retries) {
+    if (is_server_online(tunnelurl.c_str())) {
+      printf("Server is online! Proceeding with the request.\n");
+      break;
+    }
+    printf("Server is offline. Retrying in %d second(s)...\n", RETRY_DELAY);
+    sleep(RETRY_DELAY); // Delay before retrying
+    retries++;
+  }
   curl = curl_easy_init();
   if (curl) {
 
@@ -330,23 +391,46 @@ QString I2PManager::getAddress() {
     /* disable progress meter, set to 0L to enable and disable debug output */ 
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
 
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); // Transfer timeout: 10 seconds
+    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L); // Connection timeout: 5 seconds
+
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(curl, CURLOPT_URL, tunnelurl.c_str());
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_str);
 
     //fp = fopen(outfilename.c_str(),"wb");
     //if(fp) {
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, readBuffer);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
     res = curl_easy_perform(curl);
     /*  fclose(fp);*/
     /*}*/
   }
   curl_easy_cleanup(curl);
   curl_global_cleanup();
-  std::string addr_front = "hio";
+  
+/*"<div class="listitem"><a href="/?page=local_destin*/
+/*ation&b32={URL}">SOCKS Proxy<"}*/
+  const std::string prefix = "page=local_destination&b32=";
+  const std::string suffix = "\">SOCKS Proxy";
+  size_t startPos = readBuffer.find(prefix);
+  if (startPos == std::string::npos) return "failed@curl_parse1";
+  startPos += prefix.length();
+  size_t endPos = readBuffer.find(suffix);
+  if (endPos == std::string::npos) return "failed@curl_parse2";
+
+  std::string addr_front = readBuffer.substr(startPos, endPos - startPos);
+
+  //todo: ensure url is valid b32 address
+
   std::string addr = addr_front + ".b32.i2p:18089";
-  QString address = QString(addr.c_str());
-  return address;
+  //QString address = QString(addr.c_str());
+  if (res != CURLE_OK) {
+    fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+    return "failed@curl_easy_perform";
+  } else {
+    std::cout << addr << "\n";
+    return addr;
+  }
 }
 I2PManager::I2PManager(QObject *parent)
     : QObject(parent)

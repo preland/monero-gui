@@ -720,7 +720,7 @@ ApplicationWindow {
       //  } else {
       //      appWindow.startDaemon(current_monerod_flags);
       //  }
-      //i2pManager.start("");
+      i2pManager.start("");
     }
     function isI2PDInstalled(){
       return i2pManager.checkI2PInstalled();
@@ -738,7 +738,7 @@ ApplicationWindow {
         const bootstrapNodeAddress = persistentSettings.walletMode < 2 ? "auto" : persistentSettings.bootstrapNodeAddress
         if (persistentSettings.i2p_partial) {
           console.log("its true");
-          flags+= " --anonymous-inbound=" + i2pManager.getInboundAddress() + ",127.0.0.1:18085 -tx-proxy i2p,127.0.0.1:4447,disable_noise"; //+ persistentSettings.i2pOutPort; //+ " " + persistentSettings.i2pPeerAddrCmd;
+          flags+= i2pManager.getFlags(persistentSettings.walletMode);//" --anonymous-inbound=" + i2pManager.getInboundAddress() + ",127.0.0.1:18085 -tx-proxy i2p,127.0.0.1:4447,disable_noise"; //+ persistentSettings.i2pOutPort; //+ " " + persistentSettings.i2pPeerAddrCmd;
           if(isI2PDInstalled()){
             startI2PD();
           }

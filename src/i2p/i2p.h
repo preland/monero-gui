@@ -25,6 +25,7 @@
 #include <QUrl>
 #include <QProcess>
 #include <QVariantMap>
+#include <string>
 
 #include "qt/FutureScheduler.h"
 #include "NetworkType.h"
@@ -36,7 +37,7 @@ class I2PManager : public QObject
 public:
      explicit I2PManager(QObject *parent = 0);
     ~I2PManager();
-    Q_INVOKABLE bool enableI2P(bool enable, const QString &flags, int mode);
+    //Q_INVOKABLE bool enableI2P(bool enable, const QString &flags, int mode);
 
     Q_INVOKABLE bool start(const QString &flags);
     Q_INVOKABLE void stopAsync();
@@ -49,7 +50,8 @@ public:
     Q_INVOKABLE void checkI2PVersion();
     Q_INVOKABLE bool checkI2PInstalled();
     Q_INVOKABLE bool I2PInstall();
-    Q_INVOKABLE QString getAddress();
+    Q_INVOKABLE std::string getAddress(int max_retries);
+    Q_INVOKABLE std::string getFlags(int mode);
     QString version() const {
       return m_version;
     }
@@ -76,6 +78,6 @@ private:
     QString m_i2pd_tunconf;
     QString m_i2pd_tunnelsdir;
     QString m_i2pd_certsdir;
-    QString m_version;
+    QString m_version = "Unknown";
     mutable FutureScheduler m_scheduler;
 };
