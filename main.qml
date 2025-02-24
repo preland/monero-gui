@@ -1528,6 +1528,7 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
                 const remoteNodes = JSON.parse(persistentSettings.remoteNodesSerialized);
                 for (var index = 0; index < remoteNodes.nodes.length; ++index) {
                     const remoteNode = remoteNodes.nodes[index];
+                    //todo: remove non i2p nodes in i2p mode
                     remoteNodesModel.append(remoteNode);
                 }
                 selected = remoteNodes.selected % remoteNodesModel.count || 0;
@@ -2361,7 +2362,7 @@ daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockc
                 middlePanel.settingsView.settingsStateViewState = "Wallet"
             }
         }
-        console.log("walletMode: " + (mode === 0 ? "simple": mode === 1 ? "simple (bootstrap)" : "Advanced"));
+        console.log("walletMode: " + (mode === 0 ? "simple": mode === 1 ? "simple (bootstrap)": mode === 2 ? "Advanced": "I2P"));
     }
 
     Rectangle {

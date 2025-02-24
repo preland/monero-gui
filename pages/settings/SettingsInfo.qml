@@ -49,6 +49,9 @@ Rectangle {
           modeStr = qsTr("Simple mode") + " (bootstrap)" + translationManager.emptyString;
         } else if(appWindow.walletMode === 2){
           modeStr = "%1 (%2)".arg(qsTr("Advanced mode")).arg(persistentSettings.useRemoteNode ? qsTr("Remote node") : qsTr("Local node")) + translationManager.emptyString;
+        } else if(appWindow.walletMode === 3){
+          modeStr = "%1 (%2)".arg(qsTr("I2P mode")).arg(persistentSettings.useRemoteNode ? qsTr("Remote node") : qsTr("Local node")) + translationManager.emptyString;
+          //modeStr = qsTr("I2P mode") + translationManager.emptyString;//"%1 (%2)".arg(qsTr("I2P mode")).arg(persistentSettings.useRemoteNode ? qsTr("Remote node") : qsTr("Local node")) + translationManager.emptyString;
         }
         return modeStr + (persistentSettings.portable ? ", %1".arg(qsTr("portable")) : "");
     }
@@ -127,12 +130,14 @@ Rectangle {
             }
             MoneroComponents.TextBlock {
                 id: guiI2PVersion
+                visible: appWindow.walletMode === 3
                 font.pixelSize: 14
                 text: qsTr("Embedded I2P version: ") + translationManager.emptyString
             }
 
             MoneroComponents.TextBlock {
                 id: i2PVersionText
+                visible: appWindow.walletMode === 3
                 font.pixelSize: 14
                 color: MoneroComponents.Style.dimmedFontColor
                 text: i2pManager ? (i2pManager.version + "<style type='text/css'>a {cursor:pointer;text-decoration: none; color: #FF6C3C}</style>" + (i2pManager.checkI2PInstalled() ? " <a href='#'> (%1)</a>".arg(qsTr("Reinstall")) : " <a href='#'> (%1)</a>".arg(qsTr("Install")))) : "Unavailable"
@@ -157,6 +162,7 @@ Rectangle {
 
             Rectangle {
                 height: 1
+                visible: appWindow.walletMode === 3
                 Layout.topMargin: 2
                 Layout.bottomMargin: 2
                 Layout.fillWidth: true
@@ -166,6 +172,7 @@ Rectangle {
 
             Rectangle {
                 height: 1
+                visible: appWindow.walletMode === 3
                 Layout.topMargin: 2
                 Layout.bottomMargin: 2
                 Layout.fillWidth: true

@@ -156,6 +156,26 @@ Rectangle {
                 }
             }
 
+            Rectangle {
+                Layout.preferredHeight: 1
+                Layout.topMargin: 5
+                Layout.bottomMargin: 10
+                Layout.fillWidth: true
+                color: MoneroComponents.Style.dividerColor
+                opacity: MoneroComponents.Style.dividerOpacity
+            }
+
+            WizardMenuItem {
+                headerText: qsTr("I2P mode") + translationManager.emptyString
+                bodyText: qsTr("Uses integrated I2P support to obfuscate your transaction traffic. You can either connect to a remote node or run a node, and the blockchain is only downloaded to your computer if you run a node.") + translationManager.emptyString
+                imageIcon: "qrc:///images/local-node-full.png"
+
+                onMenuClicked: {
+                    appWindow.persistentSettings.pruneBlockchain = true;
+                    applyWalletMode(3, 'wizardHome');
+                }
+            }
+
             WizardHeader {
                 Layout.topMargin: 20
                 title: qsTr("Optional features") + translationManager.emptyString
@@ -171,38 +191,38 @@ Rectangle {
 
                 onMenuClicked: wizardModeSelection1.portable = !wizardModeSelection1.portable
             }
-            WizardMenuItem {
-                Layout.topMargin: 20
-                headerText: qsTr("Partial I2P Mode") + translationManager.emptyString
-                bodyText: qsTr("Use the I2P network to obfuscate your transaction traffic. Syncing the blockchain will still occur over clearnet. Only applicable for Advanced Mode and Simple Mode (bootstrap)") + translationManager.emptyString
-                checkbox: true
-                checked: wizardModeSelection1.i2p_partial
-                onMenuClicked: {
-                    if (wizardModeSelection1.i2p_partial) {
-                        wizardModeSelection1.i2p_partial = false;
-                    } else {
-                        wizardModeSelection1.i2p_partial = true;
-                        wizardModeSelection1.i2p_full = false;
-                    }
-                }
-            }
-            WizardMenuItem {
-                opacity: 0.5
-                Layout.topMargin: 20
-                headerText: qsTr("Full I2P Mode") + translationManager.emptyString
-                bodyText: qsTr("Use the I2P network to obfuscate all Monero networking traffic. This includes wallet syncing, which can reduce sync speed. When Advanced Mode is selected, the blockchain is also downloaded via I2P, which may take a considerable amount of time. Currently unimplemented.") + translationManager.emptyString
-                checkbox: true
-                checked: wizardModeSelection1.i2p_full
-
-                onMenuClicked: {
-                    //if (wizardModeSelection1.i2p_full) {
-                    //    wizardModeSelection1.i2p_full = false;
-                    //} else {
-                    //    wizardModeSelection1.i2p_full = true;
-                    //    wizardModeSelection1.i2p_partial = false;
-                    //}
-                }
-            }
+            //WizardMenuItem {
+            //    Layout.topMargin: 20
+            //    headerText: qsTr("Partial I2P Mode") + translationManager.emptyString
+            //    bodyText: qsTr("Use the I2P network to obfuscate your transaction traffic. Syncing the blockchain will still occur over clearnet. Only applicable for Advanced Mode and Simple Mode (bootstrap)") + translationManager.emptyString
+            //    checkbox: true
+            //    checked: wizardModeSelection1.i2p_partial
+            //    onMenuClicked: {
+            //        if (wizardModeSelection1.i2p_partial) {
+            //            wizardModeSelection1.i2p_partial = false;
+            //        } else {
+            //            wizardModeSelection1.i2p_partial = true;
+            //            wizardModeSelection1.i2p_full = false;
+            //        }
+            //    }
+            //}
+            //WizardMenuItem {
+            //    opacity: 0.5
+            //    Layout.topMargin: 20
+            //    headerText: qsTr("Full I2P Mode") + translationManager.emptyString
+            //    bodyText: qsTr("Use the I2P network to obfuscate all Monero networking traffic. This includes wallet syncing, which can reduce sync speed. When Advanced Mode is selected, the blockchain is also downloaded via I2P, which may take a considerable amount of time. Currently unimplemented.") + translationManager.emptyString
+            //    checkbox: true
+            //    checked: wizardModeSelection1.i2p_full
+            //
+            //    onMenuClicked: {
+            //        //if (wizardModeSelection1.i2p_full) {
+            //        //    wizardModeSelection1.i2p_full = false;
+            //        //} else {
+            //        //    wizardModeSelection1.i2p_full = true;
+            //        //    wizardModeSelection1.i2p_partial = false;
+            //        //}
+            //    }
+            //}
             WizardNav {
                 Layout.topMargin: 5
                 btnPrevText: qsTr("Back to menu") + translationManager.emptyString

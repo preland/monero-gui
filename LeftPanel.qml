@@ -466,7 +466,7 @@ Rectangle {
             // ------------- Advanced tab ---------------
             MoneroComponents.MenuButton {
                 id: advancedButton
-                visible: appWindow.walletMode >= 2
+                visible: appWindow.walletMode === 2
                 anchors.left: parent.left
                 anchors.right: parent.right
                 text: qsTr("Advanced") + translationManager.emptyString
@@ -526,7 +526,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.bottom: i2pdStatus.top
             syncType: qsTr("Daemon") + translationManager.emptyString
-            visible: persistentSettings.i2p_partial
+            visible: persistentSettings.walletMode == 3
             height: 62
         }
         
@@ -539,7 +539,7 @@ Rectangle {
             anchors.bottom: separator.top
             anchors.bottomMargin: 5
             connected: Wallet.ConnectionStatus_Disconnected
-            visible: persistentSettings.i2p_partial
+            visible: persistentSettings.walletMode == 3
             height: 48
         }
 
@@ -549,7 +549,7 @@ Rectangle {
             anchors.right: parent.right
             anchors.bottom: progressBar.visible ? progressBar.top : networkStatus.top
             anchors.leftMargin: 20
-            visible: persistentSettings.i2p_partial
+            visible: persistentSettings.walletMode == 3
 }
 
         MoneroComponents.ProgressBar {

@@ -243,6 +243,7 @@ Rectangle {
 
         MoneroComponents.CheckBox {
             id: proxyCheckbox
+            visible: appWindow.walletMode != 3
             Layout.topMargin: 6
             enabled: !socksProxyFlagSet
             checked: socksProxyFlagSet ? socksProxyFlag : persistentSettings.proxyEnabled
@@ -271,63 +272,63 @@ Rectangle {
                 persistentSettings.proxyAddress = proxyEdit.getAddress();
             }
         }
-        MoneroComponents.CheckBox {
-            id: i2pCheckbox
-            Layout.topMargin: 6
-            enabled: true
-            checked: persistentSettings.i2p_partial
-            onClicked: {
-                persistentSettings.i2p_partial = !persistentSettings.i2p_partial;
-                //here the fun begins
-                proxyCheckbox.enabled = !persistentSettings.i2p_partial;
-                //i2pManager.enableI2P(persistentSettings.i2p_partial, "", persistentSettings.walletMode);
-                appWindow.startI2PD();
-                //persistentSettings.proxyEnabled = persistentSettings.i2p_partial;
-                //persistentSettings.proxyAddress = "127.0.0.1:4447";
-                //remoteNodesModel.appendIfNotExists({
-                //  address: i2pManager.getAddress(),
-                //  username: "",
-                //  password: "",
-                //  trusted: true,
-                //});
-
-            }
-            text: qsTr("Use I2P for transactions")
-        }
-        MoneroComponents.I2PNodeEdit {
-            id: i2pEdit
-            enabled: i2pCheckbox.enabled
-            Layout.leftMargin: 36
-            Layout.topMargin: 6
-            Layout.minimumWidth: 100
-            placeholderFontSize: 15
-            visible: i2pCheckbox.checked
-
-            //i2pOutPortLabelText: qsTr("I2P Outgoing Port") + translationManager.emptyString
-            //i2pInPortLabelText: qsTr("I2P Incoming Port") + translationManager.emptyString
-            i2pAddrLabelText: qsTr("I2P Peer IP addresses") + translationManager.emptyString
-            //i2pUseExternalI2PText: qsTR("Use external I2P") + translationManager.emptyString
-            //initialAddress: socksProxyFlagSet ? socksProxyFlag : persistentSettings.proxyAddress
-            onEditingFinished: {
-                //persistentSettings.i2pDaemonAddress = proxyEdit.getAddress();
-                //persistentSettings.i2pInPort = i2pEdit.getInPort();
-                //persistentSettings.i2pOutPort = i2pEdit.getOutPort();
-                //persistentSettings.i2pPeerAddr = i2pEdit.getPeerAddresses();
-                //persistentSettings.i2pPeerAddrCmd = i2pEdit.getPeerAddressesFormatted();
-
-                //todo: add button to manually restart monerod
-              }
-              MoneroComponents.StandardButton {
-                visible: i2pCheckbox.enabled
-                small: true
-                text: qsTr("run i2pd cuz idk lulz") + translationManager.emptyString
-                onClicked: {
-                    //writeCSVFileDialog.open();
-                    appWindow.startI2PD();
-                }
-            }
-
-        }
+        //MoneroComponents.CheckBox {
+        //    id: i2pCheckbox
+        //    Layout.topMargin: 6
+        //    enabled: true
+        //    checked: persistentSettings.i2p_partial
+        //    onClicked: {
+        //        persistentSettings.i2p_partial = !persistentSettings.i2p_partial;
+        //        //here the fun begins
+        //        proxyCheckbox.enabled = !persistentSettings.i2p_partial;
+        //        //i2pManager.enableI2P(persistentSettings.i2p_partial, "", persistentSettings.walletMode);
+        //        appWindow.startI2PD();
+        //        //persistentSettings.proxyEnabled = persistentSettings.i2p_partial;
+        //        //persistentSettings.proxyAddress = "127.0.0.1:4447";
+        //        //remoteNodesModel.appendIfNotExists({
+        //        //  address: i2pManager.getAddress(),
+        //        //  username: "",
+        //        //  password: "",
+        //        //  trusted: true,
+        //        //});
+        //
+        //    }
+        //    text: qsTr("Use I2P for transactions")
+        //}
+        //MoneroComponents.I2PNodeEdit {
+        //    id: i2pEdit
+        //    enabled: i2pCheckbox.enabled
+        //    Layout.leftMargin: 36
+        //    Layout.topMargin: 6
+        //    Layout.minimumWidth: 100
+        //    placeholderFontSize: 15
+        //    visible: i2pCheckbox.checked
+        //
+        //    //i2pOutPortLabelText: qsTr("I2P Outgoing Port") + translationManager.emptyString
+        //    //i2pInPortLabelText: qsTr("I2P Incoming Port") + translationManager.emptyString
+        //    i2pAddrLabelText: qsTr("I2P Peer IP addresses") + translationManager.emptyString
+        //    //i2pUseExternalI2PText: qsTR("Use external I2P") + translationManager.emptyString
+        //    //initialAddress: socksProxyFlagSet ? socksProxyFlag : persistentSettings.proxyAddress
+        //    onEditingFinished: {
+        //        //persistentSettings.i2pDaemonAddress = proxyEdit.getAddress();
+        //        //persistentSettings.i2pInPort = i2pEdit.getInPort();
+        //        //persistentSettings.i2pOutPort = i2pEdit.getOutPort();
+        //        //persistentSettings.i2pPeerAddr = i2pEdit.getPeerAddresses();
+        //        //persistentSettings.i2pPeerAddrCmd = i2pEdit.getPeerAddressesFormatted();
+        //
+        //        //todo: add button to manually restart monerod
+        //      }
+        //      MoneroComponents.StandardButton {
+        //        visible: i2pCheckbox.enabled
+        //        small: true
+        //        text: qsTr("run i2pd cuz idk lulz") + translationManager.emptyString
+        //        onClicked: {
+        //            //writeCSVFileDialog.open();
+        //            appWindow.startI2PD();
+        //        }
+        //    }
+        //
+        //}
 
         MoneroComponents.StandardButton {
             visible: !persistentSettings.customDecorations
