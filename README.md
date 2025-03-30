@@ -96,7 +96,7 @@ Packaging for your favorite distribution would be a welcome contribution!
 
 *Note*: Qt 5.9.7 is the minimum version required to build the GUI.
 
-*Note*: Official GUI releases use monero-wallet-gui from this process alongside the supporting binaries (monerod, etc) from the [CLI deterministic builds](https://github.com/monero-project/monero/blob/master/contrib/gitian/README.md).
+*Note*: Official GUI releases use monero-wallet-gui from this process alongside the supporting binaries (monerod, etc) from the [CLI deterministic builds](https://github.com/monero-project/monero/blob/release-v0.18/contrib/gitian/README.md).
 
 ### Building Reproducible Windows static binaries with Docker (any OS)
 
@@ -142,8 +142,9 @@ Packaging for your favorite distribution would be a welcome contribution!
    ```
    \* `<MONERO_GUI_DIR_FULL_PATH>` - absolute path to `monero-gui` directory  
    \* `4` - number of CPU threads to use
-5. Monero GUI Linux static binaries will be placed in  `monero-gui/build/release/bin` directory
-6. (*Optional*) Compare `monero-wallet-gui` SHA-256 hash to the one obtained from a trusted source
+5. Monero GUI Linux static binary will be placed in  `monero-gui/build/release/bin` directory
+6. (*Note*) This process is only for building `monero-wallet-gui`, `monerod` has to be built separately according to the instructions in the `monero` repository.
+7. (*Optional*) Compare `monero-wallet-gui` SHA-256 hash to the one obtained from a trusted source
    ```
    docker run --rm -it -v <MONERO_GUI_DIR_FULL_PATH>:/monero-gui -w /monero-gui monero:build-env-linux sh -c 'shasum -a 256 /monero-gui/build/release/bin/monero-wallet-gui'
    ```
@@ -308,7 +309,7 @@ The Monero GUI on Windows is 64 bits only; 32-bit Windows GUI builds are not off
 3. Install MSYS2 packages for Monero dependencies; the needed 64-bit packages have `x86_64` in their names
 
     ```
-    pacman -S mingw-w64-x86_64-toolchain make mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-openssl mingw-w64-x86_64-zeromq mingw-w64-x86_64-libsodium mingw-w64-x86_64-hidapi mingw-w64-x86_64-protobuf-c mingw-w64-x86_64-libusb mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-unbound mingw-w64-x86_64-pcre
+    pacman -S mingw-w64-x86_64-toolchain make mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-openssl mingw-w64-x86_64-zeromq mingw-w64-x86_64-libsodium mingw-w64-x86_64-hidapi mingw-w64-x86_64-protobuf-c mingw-w64-x86_64-libusb mingw-w64-x86_64-libgcrypt mingw-w64-x86_64-unbound mingw-w64-x86_64-pcre mingw-w64-x86_64-angleproject
     ```
 
     You find more details about those dependencies in the [Monero documentation](https://github.com/monero-project/monero). Note that that there is no more need to compile Boost from source; like everything else, you can install it now with a MSYS2 package.
