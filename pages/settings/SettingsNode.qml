@@ -51,11 +51,14 @@ Rectangle{
 
         spacing: 0
 
+
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 90
             color: "transparent"
             visible: !isAndroid
+            enabled: !(persistentSettings.walletMode == 3)
+            opacity: !(persistentSettings.walletMode == 3) ? 1.0 : 0.5
 
             Rectangle {
                 id: localNodeDivider
@@ -129,7 +132,7 @@ Rectangle{
                     wrapMode: Text.WordWrap;
                     leftPadding: 0
                     topPadding: 0
-                    text: qsTr("The blockchain is downloaded to your computer. Provides higher security and requires more local storage.") + translationManager.emptyString
+                    text: !(persistentSettings.walletMode == 3) ? qsTr("The blockchain is downloaded to your computer. Provides higher security and requires more local storage.") + translationManager.emptyString : qsTr("Local node is not currently supported.") + translationManager.emptyString
                     width: parent.width - (localNodeIcon.width + localNodeIcon.anchors.leftMargin + anchors.leftMargin)
                 }
             }
@@ -251,7 +254,8 @@ Rectangle{
 
         MoneroComponents.WarningBox {
             Layout.topMargin: 46
-            text: qsTr("To find a remote node, type 'Monero remote node' into your favorite search engine. Please ensure the node is run by a trusted third-party.") + translationManager.emptyString
+            text: !(persistentSettings.walletMode == 3) ? qsTr("To find a remote node, type 'Monero remote node' into your favorite search engine. Please ensure the node is run by a trusted third-party.") + translationManager.emptyString : qsTr("To find a remote node, type 'Monero remote node' into your favorite search engine. Please ensure the node is run by a trusted third-party. Ensure that you provide a b32 URL ( *.b32.i2p).") + translationManager.emptyString
+
             visible: persistentSettings.useRemoteNode
         }
 

@@ -34,6 +34,7 @@ import FontAwesome 1.0
 import "." as MoneroComponents
 import "effects/" as MoneroEffects
 
+
 ColumnLayout {
     id: remoteNodeList
     spacing: 20
@@ -51,10 +52,34 @@ ColumnLayout {
     }
 
     ColumnLayout {
+        id: remoteNodeSublist
         spacing: 0
 
+        ListModel { id: remoteNodesModelI2PFilter }
+
+        // Function to filter nodes
+        function applyFilter() {
+            remoteNodesModelI2PFilter.clear(); // Clear previous results
+            for (var i = 0; i < remoteNodesModel.count; i++) {
+                var item = remoteNodesModel.get(i);
+                var colonIndex = item.address.lastIndexOf(":");
+                var baseDomain = (colonIndex > item.address.indexOf("//")) 
+                ? item.address.substring(0, colonIndex)  // Remove port
+                : item.address;  // Keep original if no port                
+                if (baseDomain.endsWith(".b32.i2p")) {
+                    remoteNodesModelI2PFilter.append({ address: item.address, username: item.username, password: item.password, trusted: item.trusted });
+                }
+            }
+        }
+
+        // Timer to check for changes in remoteNodesModel
+        Timer {
+            interval: 500; running: true; repeat: true
+            onTriggered: remoteNodeSublist.applyFilter()
+        }
+
         Repeater {
-            model: remoteNodesModel
+          model: !(persistentSettings.walletMode == 3) ? remoteNodesModel : remoteNodesModelI2PFilter
 
             Rectangle {
                 height: 30

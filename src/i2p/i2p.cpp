@@ -259,9 +259,11 @@ std::string version = url.substr(last_slash + 1);
   std::cout << downloadurl << std::endl;
   std::string outfilename = download_folder + sep + filename;
   std::cout << outfilename << std::endl;
-
+  std::cout << "3" << std::endl;
   curl_global_init(CURL_GLOBAL_ALL);
+  std::cout << "4" << std::endl;
   curl = curl_easy_init();
+  std::cout << "5" << std::endl;
   if (curl) {
 
     /* Switch on full protocol/debug output while testing */ 
@@ -274,15 +276,18 @@ std::string version = url.substr(last_slash + 1);
     curl_easy_setopt(curl, CURLOPT_URL, downloadurl.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_file);
 
-    /*fp = fopen(outfilename.c_str(),"wb");*/
-    /*if(fp) {*/
+    fp = fopen(outfilename.c_str(),"wb");
+    if(fp) {
       curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+      std::cout << "7" << std::endl;
       res = curl_easy_perform(curl);
-      /*fclose(fp);*/
-    /*}*/
+      std::cout << "8" << std::endl;
+      fclose(fp);
+    }
   }
   curl_easy_cleanup(curl);
   curl_global_cleanup();
+  std::cout << "9";
   
   //extract data.tar.xz
 
