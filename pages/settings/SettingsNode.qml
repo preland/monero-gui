@@ -55,7 +55,7 @@ Rectangle{
             Layout.fillWidth: true
             Layout.preferredHeight: 90
             color: "transparent"
-            visible: !isAndroid
+            visible: !isAndroid && appWindow.walletMode >= 2
 
             Rectangle {
                 id: localNodeDivider
@@ -149,6 +149,7 @@ Rectangle{
             Layout.fillWidth: true
             Layout.preferredHeight: 90
             color: "transparent"
+            visible: appWindow.walletMode >= 2
 
             Rectangle {
                 id: remoteNodeDivider
@@ -252,20 +253,77 @@ Rectangle{
         MoneroComponents.WarningBox {
             Layout.topMargin: 46
             text: qsTr("To find a remote node, type 'Monero remote node' into your favorite search engine. Please ensure the node is run by a trusted third-party.") + translationManager.emptyString
-            visible: persistentSettings.useRemoteNode
+            visible: persistentSettings.useRemoteNode && appWindow.walletMode >= 2
         }
 
         MoneroComponents.RemoteNodeList {
             Layout.fillWidth: true
             Layout.topMargin: 26
-            visible: persistentSettings.useRemoteNode
+            visible: persistentSettings.useRemoteNode && appWindow.walletMode >= 2
+        }
+
+        ColumnLayout {
+            // I2P controls — visible in both local and remote node modes.
+            visible: typeof i2pManager !== "undefined"
+            Layout.fillWidth: true
+            Layout.topMargin: 40
+            spacing: 20
+
+            MoneroComponents.CheckBox {
+                checked: persistentSettings.i2pEnabled
+                text: qsTr("Route via I2P") + translationManager.emptyString
+                onClicked: {
+                    persistentSettings.i2pEnabled = !persistentSettings.i2pEnabled;
+                    if (persistentSettings.i2pEnabled) {
+                        i2pManager.start(persistentSettings.blockchainDataDir);
+                    } else {
+                        i2pManager.stop();
+                    }
+                }
+            }
+
+            MoneroComponents.CheckBox {
+                visible: persistentSettings.i2pEnabled && !persistentSettings.useRemoteNode
+                checked: persistentSettings.i2pOnlyMode
+                text: qsTr("I2P only (no clearnet peers)") + translationManager.emptyString
+                onClicked: persistentSettings.i2pOnlyMode = !persistentSettings.i2pOnlyMode
+            }
+
+            MoneroComponents.LineEditMulti {
+                visible: persistentSettings.i2pEnabled && !persistentSettings.useRemoteNode && persistentSettings.i2pOnlyMode
+                Layout.fillWidth: true
+                labelFontSize: 14
+                fontSize: 15
+                wrapMode: Text.WrapAnywhere
+                labelText: qsTr("Additional I2P peers") + translationManager.emptyString
+                placeholderText: qsTr("space-separated .b32.i2p:port addresses") + translationManager.emptyString
+                placeholderFontSize: 15
+                text: persistentSettings.i2pExtraNodes
+                addressValidation: false
+                onEditingFinished: persistentSettings.i2pExtraNodes = text
+            }
+
+            MoneroComponents.WarningBox {
+                visible: persistentSettings.i2pEnabled && !persistentSettings.useRemoteNode && appWindow.daemonRunning
+                text: qsTr("Restart the daemon to apply I2P changes.") + translationManager.emptyString
+            }
+
+            MoneroComponents.TextPlain {
+                visible: persistentSettings.i2pEnabled && i2pManager.running
+                text: qsTr("I2P address: ") + i2pManager.b32Address + translationManager.emptyString
+                Layout.fillWidth: true
+                wrapMode: Text.WrapAnywhere
+                font.family: MoneroComponents.Style.fontRegular.name
+                font.pixelSize: 12
+                color: MoneroComponents.Style.dimmedFontColor
+            }
         }
 
         ColumnLayout {
             id: localNodeLayout
             spacing: 20
             Layout.topMargin: 40
-            visible: !persistentSettings.useRemoteNode
+            visible: !persistentSettings.useRemoteNode && appWindow.walletMode >= 2
 
             MoneroComponents.StandardButton {
                 small: true
@@ -324,64 +382,6 @@ Rectangle{
                     if (!daemonFlags.error) {
                         persistentSettings.daemonFlags = daemonFlags.text;
                     }
-                }
-            }
-
-            ColumnLayout {
-                // Single visibility guard for the entire I2P block so the outer
-                // ColumnLayout sees one item toggling rather than many, preventing
-                // recursive layout rearrange warnings.
-                visible: typeof i2pManager !== "undefined"
-                Layout.fillWidth: true
-                spacing: 20
-
-                MoneroComponents.CheckBox {
-                    checked: persistentSettings.i2pEnabled
-                    text: qsTr("Route via I2P") + translationManager.emptyString
-                    onClicked: {
-                        persistentSettings.i2pEnabled = !persistentSettings.i2pEnabled;
-                        if (persistentSettings.i2pEnabled) {
-                            i2pManager.start(persistentSettings.blockchainDataDir);
-                        } else {
-                            i2pManager.stop();
-                        }
-                    }
-                }
-
-                MoneroComponents.CheckBox {
-                    visible: persistentSettings.i2pEnabled
-                    checked: persistentSettings.i2pOnlyMode
-                    text: qsTr("I2P only (no clearnet peers)") + translationManager.emptyString
-                    onClicked: persistentSettings.i2pOnlyMode = !persistentSettings.i2pOnlyMode
-                }
-
-                MoneroComponents.LineEditMulti {
-                    visible: persistentSettings.i2pEnabled && persistentSettings.i2pOnlyMode
-                    Layout.fillWidth: true
-                    labelFontSize: 14
-                    fontSize: 15
-                    wrapMode: Text.WrapAnywhere
-                    labelText: qsTr("Additional I2P peers") + translationManager.emptyString
-                    placeholderText: qsTr("space-separated .b32.i2p:port addresses") + translationManager.emptyString
-                    placeholderFontSize: 15
-                    text: persistentSettings.i2pExtraNodes
-                    addressValidation: false
-                    onEditingFinished: persistentSettings.i2pExtraNodes = text
-                }
-
-                MoneroComponents.WarningBox {
-                    visible: persistentSettings.i2pEnabled && appWindow.daemonRunning
-                    text: qsTr("Restart the daemon to apply I2P changes.") + translationManager.emptyString
-                }
-
-                MoneroComponents.TextPlain {
-                    visible: persistentSettings.i2pEnabled && i2pManager.running
-                    text: qsTr("I2P address: ") + i2pManager.b32Address + translationManager.emptyString
-                    Layout.fillWidth: true
-                    wrapMode: Text.WrapAnywhere
-                    font.family: MoneroComponents.Style.fontRegular.name
-                    font.pixelSize: 12
-                    color: MoneroComponents.Style.dimmedFontColor
                 }
             }
 
