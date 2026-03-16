@@ -106,8 +106,7 @@ bool DaemonManager::start(const QString &flags, NetworkType::Type nettype, const
         arguments << "--max-concurrency" << QString::number(concurrency);
     }
 
-    qDebug() << "starting monerod " + m_monerod;
-    qDebug() << "With command line arguments " << arguments;
+    qWarning() << "Starting monerod:" << (m_monerod + " " + arguments.join(" "));
 
     QMutexLocker locker(&m_daemonMutex);
 

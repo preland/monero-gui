@@ -733,6 +733,7 @@ ApplicationWindow {
 
         const noSync = appWindow.walletMode === 0;
         const bootstrapNodeAddress = persistentSettings.walletMode < 2 ? "auto" : persistentSettings.bootstrapNodeAddress
+        console.log("startDaemon: flags=\"" + f + "\" dataDir=\"" + persistentSettings.blockchainDataDir + "\" bootstrap=\"" + bootstrapNodeAddress + "\" noSync=" + noSync + " prune=" + persistentSettings.pruneBlockchain);
         daemonManager.start(f, persistentSettings.nettype, persistentSettings.blockchainDataDir, bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain);
     }
 
