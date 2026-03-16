@@ -263,8 +263,8 @@ Rectangle{
         }
 
         ColumnLayout {
-            // I2P controls — visible in both local and remote node modes.
-            visible: typeof i2pManager !== "undefined"
+            // I2P controls for advanced mode. Simple mode users have this in Settings > Interface.
+            visible: typeof i2pManager !== "undefined" && appWindow.walletMode >= 2
             Layout.fillWidth: true
             Layout.topMargin: 40
             spacing: 20

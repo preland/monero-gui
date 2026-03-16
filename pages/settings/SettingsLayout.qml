@@ -272,6 +272,47 @@ Rectangle {
             }
         }
 
+        ColumnLayout {
+            // I2P toggle for simple mode. Advanced mode users have this in Settings > Node.
+            visible: typeof i2pManager !== "undefined" && appWindow.walletMode < 2
+            Layout.fillWidth: true
+            spacing: 6
+
+            MoneroComponents.CheckBox {
+                Layout.topMargin: 6
+                checked: persistentSettings.i2pEnabled
+                text: qsTr("Route via I2P") + translationManager.emptyString
+                onClicked: {
+                    persistentSettings.i2pEnabled = !persistentSettings.i2pEnabled;
+                    if (persistentSettings.i2pEnabled) {
+                        i2pManager.start(persistentSettings.blockchainDataDir);
+                    } else {
+                        i2pManager.stop();
+                    }
+                }
+            }
+
+            MoneroComponents.TextPlain {
+                visible: persistentSettings.i2pEnabled && i2pManager.running
+                Layout.leftMargin: 36
+                text: qsTr("I2P address: ") + i2pManager.b32Address + translationManager.emptyString
+                font.family: MoneroComponents.Style.fontRegular.name
+                font.pixelSize: 12
+                color: MoneroComponents.Style.dimmedFontColor
+                wrapMode: Text.WrapAnywhere
+                Layout.fillWidth: true
+            }
+
+            MoneroComponents.TextPlain {
+                visible: persistentSettings.i2pEnabled && !i2pManager.running
+                Layout.leftMargin: 36
+                text: qsTr("I2P router starting…") + translationManager.emptyString
+                font.family: MoneroComponents.Style.fontRegular.name
+                font.pixelSize: 12
+                color: MoneroComponents.Style.dimmedFontColor
+            }
+        }
+
         MoneroComponents.StandardButton {
             visible: !persistentSettings.customDecorations
             Layout.topMargin: 10

@@ -742,7 +742,6 @@ ApplicationWindow {
             appWindow.showProcessingSplash(qsTr("Waiting for daemon to stop..."));
         }
         p2poolManager.exit()
-        if (persistentSettings.i2pEnabled && typeof i2pManager !== "undefined") i2pManager.stop();
         daemonManager.stopAsync(persistentSettings.nettype, persistentSettings.blockchainDataDir, function(result) {
             daemonStartStopInProgress = 0;
             if (splash) {

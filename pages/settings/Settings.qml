@@ -67,7 +67,7 @@ ColumnLayout {
         MoneroComponents.NavbarItem {
             active: settingsStateView.state == "Node"
             text: qsTr("Node") + translationManager.emptyString
-            visible: appWindow.walletMode >= 2 || typeof i2pManager !== "undefined"
+            visible: appWindow.walletMode >= 2
             onSelected: settingsStateView.state = "Node"
         }
         MoneroComponents.NavbarItem {
