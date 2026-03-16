@@ -14,10 +14,11 @@ option(USE_DEVICE_TREZOR "Trezor support compilation" ON)
 option(WITH_SCANNER "Enable webcam QR scanner" OFF)
 option(WITH_DESKTOP_ENTRY "Ask to install desktop entry on first startup" ON)
 option(WITH_UPDATER "Regularly check for new updates" ON)
+option(WITH_I2P "Embed I2P router (libi2pd)" ON)
 option(DEV_MODE "Checkout latest monero master on build" OFF)
 
-if(DEV_MODE)
-  # DEV_MODE checks out the monero submodule to master, which requires C++17.
+if(DEV_MODE OR WITH_I2P)
+  # DEV_MODE requires C++17; libi2pd also requires C++17.
   set(CMAKE_CXX_STANDARD 17)
 else()
   set(CMAKE_CXX_STANDARD 11)
@@ -48,6 +49,9 @@ if(NOT MANUAL_SUBMODULES)
       endfunction ()
       message(STATUS "Checking submodules")
       check_submodule(monero)
+      if(WITH_I2P)
+        check_submodule(external/i2pd)
+      endif()
     else()
       execute_process(COMMAND ${GIT_EXECUTABLE} fetch WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/monero RESULT_VARIABLE GIT_FETCH_RESULT)
       execute_process(COMMAND ${GIT_EXECUTABLE} checkout -f origin/master WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/monero RESULT_VARIABLE GIT_CHECKOUT_MASTER_RESULT)
@@ -62,6 +66,40 @@ endif()
 
 add_subdirectory(monero)
 add_subdirectory(external)
+
+if(WITH_I2P)
+  add_definitions(-DWITH_I2P)
+
+  set(I2PD_ROOT "${CMAKE_SOURCE_DIR}/external/i2pd")
+
+  file(GLOB LIBI2PD_SRC        "${I2PD_ROOT}/libi2pd/*.cpp")
+  file(GLOB LIBI2PD_CLIENT_SRC "${I2PD_ROOT}/libi2pd_client/*.cpp")
+  file(GLOB LIBI2PD_LANG_SRC   "${I2PD_ROOT}/i18n/*.cpp")
+
+  add_library(libi2pd       STATIC ${LIBI2PD_SRC})
+  add_library(libi2pdclient STATIC ${LIBI2PD_CLIENT_SRC})
+  add_library(libi2pdlang   STATIC ${LIBI2PD_LANG_SRC})
+
+  foreach(_tgt libi2pd libi2pdclient libi2pdlang)
+    set_target_properties(${_tgt} PROPERTIES PREFIX "")
+    # OPENSSL_INCLUDE_DIR and Boost_INCLUDE_DIR are CMake cache variables set
+    # by the monero subdirectory's find_package calls and accessible here.
+    target_include_directories(${_tgt} PUBLIC
+      "${I2PD_ROOT}/libi2pd"
+      "${I2PD_ROOT}/libi2pd_client"
+      "${I2PD_ROOT}/i18n"
+      "${OPENSSL_INCLUDE_DIR}"
+      "${Boost_INCLUDE_DIR}"
+    )
+    # Boost 1.70+ no longer includes deadline_timer in asio.hpp by default;
+    # force-include it so i2pd's widespread use of deadline_timer compiles cleanly.
+    target_compile_options(${_tgt} PRIVATE
+      "-include" "${Boost_INCLUDE_DIR}/boost/asio/deadline_timer.hpp"
+    )
+  endforeach()
+  # Boost, OpenSSL, zlib, and pthreads are already in the monero-wallet-gui
+  # link chain; the static i2pd objects resolve against them at final link.
+endif()
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)

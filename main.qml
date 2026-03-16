@@ -92,6 +92,9 @@ ApplicationWindow {
     property int userLastActive;  // epoch
     // Default daemon addresses
     readonly property string localDaemonAddress : "localhost:" + getDefaultDaemonRpcPort(persistentSettings.nettype)
+    // Curated I2P wallet RPC nodes for simple mode. Must be populated with
+    // community-provided .b32.i2p:18089 endpoints before release.
+    readonly property var i2pSeedNodes: []
     property string currentDaemonAddress;
     property int disconnectedEpoch: 0
     property int estimatedBlockchainSize: persistentSettings.pruneBlockchain ? 100 : 225 // GB
@@ -714,9 +717,23 @@ ApplicationWindow {
         // Pause refresh while starting daemon
         currentWallet.pauseRefresh();
 
+        var f = flags;
+        if (persistentSettings.i2pEnabled && typeof i2pManager !== "undefined" && i2pManager.running) {
+            // 4447 = i2pd SOCKS5 proxy (monerod uses SOCKS for I2P, not SAM).
+            // 18085 = dedicated I2P inbound port; must match tunnels.conf in I2PManager.cpp.
+            f += " --tx-proxy i2p,127.0.0.1:4447";
+            f += " --anonymous-inbound " + i2pManager.b32Address + ",127.0.0.1:18085";
+            if (persistentSettings.i2pOnlyMode) {
+                f += " --p2p-bind-ip 127.0.0.1";
+                var peers = i2pSeedNodes.concat(
+                    persistentSettings.i2pExtraNodes.split(" ").filter(Boolean));
+                peers.forEach(function(p) { f += " --add-exclusive-node " + p; });
+            }
+        }
+
         const noSync = appWindow.walletMode === 0;
         const bootstrapNodeAddress = persistentSettings.walletMode < 2 ? "auto" : persistentSettings.bootstrapNodeAddress
-        daemonManager.start(flags, persistentSettings.nettype, persistentSettings.blockchainDataDir, bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain);
+        daemonManager.start(f, persistentSettings.nettype, persistentSettings.blockchainDataDir, bootstrapNodeAddress, noSync, persistentSettings.pruneBlockchain);
     }
 
     function stopDaemon(callback, splash){
@@ -725,6 +742,7 @@ ApplicationWindow {
             appWindow.showProcessingSplash(qsTr("Waiting for daemon to stop..."));
         }
         p2poolManager.exit()
+        if (persistentSettings.i2pEnabled && typeof i2pManager !== "undefined") i2pManager.stop();
         daemonManager.stopAsync(persistentSettings.nettype, persistentSettings.blockchainDataDir, function(result) {
             daemonStartStopInProgress = 0;
             if (splash) {
@@ -1327,6 +1345,10 @@ ApplicationWindow {
             daemonManager.daemonStopped.connect(onDaemonStopped);
         }
 
+        if (persistentSettings.i2pEnabled && typeof i2pManager !== "undefined") {
+            i2pManager.start(persistentSettings.blockchainDataDir);
+        }
+
         // Connect app exit to qml window exit handling
         mainApp.closing.connect(appWindow.close);
 
@@ -1442,6 +1464,9 @@ ApplicationWindow {
         property bool autosave: true
         property int autosaveMinutes: 10
         property bool pruneBlockchain: false
+        property bool i2pEnabled: false
+        property bool i2pOnlyMode: false
+        property string i2pExtraNodes: ""
 
         property bool fiatPriceEnabled: false
         property bool fiatPriceToggle: false
@@ -1463,15 +1488,16 @@ ApplicationWindow {
         function getWalletProxyAddress() {
             if (!useRemoteNode) {
                 return "";
-            } else {
-                const remoteAddress = remoteNodesModel.currentRemoteNode().address;
-                // skip proxy when using localhost remote node
-                if (remoteAddress.startsWith("127.0.0.1:") || remoteAddress.startsWith("localhost:")) {
-                    return "";
-                } else {
-                    return getProxyAddress();
-                }
             }
+            const remoteAddress = remoteNodesModel.currentRemoteNode().address;
+            // skip proxy when using localhost remote node
+            if (remoteAddress.startsWith("127.0.0.1:") || remoteAddress.startsWith("localhost:")) {
+                return "";
+            }
+            if (i2pEnabled && typeof i2pManager !== "undefined" && i2pManager.running) {
+                return "127.0.0.1:4447";
+            }
+            return getProxyAddress();
         }
 
         Component.onCompleted: {

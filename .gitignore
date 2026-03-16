@@ -34,3 +34,4 @@ Session.vim
 tags
 # Persistent undo
 [._]*.un~
+build-i2p-test

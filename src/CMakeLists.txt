@@ -43,6 +43,10 @@ file(GLOB SOURCE_FILES
     "qt/*.h"
     "qt/*.cpp"
 )
+if(WITH_I2P)
+  file(GLOB I2P_SOURCE_FILES "i2p/*.h" "i2p/*.cpp")
+  list(APPEND SOURCE_FILES ${I2P_SOURCE_FILES})
+endif()
 if(APPLE)
     list(APPEND SOURCE_FILES "qt/macoshelper.mm")
 endif()
@@ -106,6 +110,17 @@ target_include_directories(monero-wallet-gui PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/zxcvbn-c
     ${X11_INCLUDE_DIR}
 )
+if(WITH_I2P)
+  target_include_directories(monero-wallet-gui PUBLIC
+    "${CMAKE_SOURCE_DIR}/external/i2pd/libi2pd"
+    "${CMAKE_SOURCE_DIR}/external/i2pd/libi2pd_client"
+  )
+  # i2pd headers transitively include asio headers that use deadline_timer,
+  # which Boost 1.70+ no longer pulls in from asio.hpp by default.
+  target_compile_options(monero-wallet-gui PRIVATE
+    "-include" "${Boost_INCLUDE_DIR}/boost/asio/deadline_timer.hpp"
+  )
+endif()
 
 target_compile_definitions(monero-wallet-gui
 	PUBLIC
@@ -137,6 +152,9 @@ target_link_libraries(monero-wallet-gui
     translations
     zxcvbn
 )
+if(WITH_I2P)
+  target_link_libraries(monero-wallet-gui libi2pd libi2pdclient libi2pdlang z)
+endif()
 
 if(X11_FOUND)
     target_link_libraries(monero-wallet-gui ${X11_LIBRARIES})

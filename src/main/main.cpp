@@ -79,6 +79,9 @@
 #ifndef Q_OS_IOS
 #include "daemon/DaemonManager.h"
 #include "p2pool/P2PoolManager.h"
+#ifdef WITH_I2P
+#include "i2p/I2PManager.h"
+#endif
 #endif
 
 #if defined(Q_OS_WIN)
@@ -414,6 +417,10 @@ Verify update binary using 'shasum'-compatible (SHA256 algo) output signed by tw
                                                    "DaemonManager can't be instantiated directly");
     qmlRegisterUncreatableType<P2PoolManager>("moneroComponents.P2PoolManager", 1, 0, "P2PoolManager",
                                                    "P2PoolManager can't be instantiated directly");
+#ifdef WITH_I2P
+    qmlRegisterUncreatableType<I2PManager>("moneroComponents.I2PManager", 1, 0, "I2PManager",
+                                                   "I2PManager can't be instantiated directly");
+#endif
 #endif
     qmlRegisterUncreatableType<AddressBookModel>("moneroComponents.AddressBookModel", 1, 0, "AddressBookModel",
                                                         "AddressBookModel can't be instantiated directly");
@@ -444,6 +451,17 @@ Verify update binary using 'shasum'-compatible (SHA256 algo) output signed by tw
     qmlRegisterType<QrCodeScanner>("moneroComponents.QRCodeScanner", 1, 0, "QRCodeScanner");
 #endif
 
+// Declare managers before engine so they outlive the QML engine.
+// C++ destroys stack variables in reverse order; engine must be destroyed
+// before these managers to avoid QML bindings firing against dangling pointers.
+#ifndef Q_OS_IOS
+    DaemonManager daemonManager;
+    P2PoolManager p2poolManager;
+#ifdef WITH_I2P
+    I2PManager i2pManager;
+#endif
+#endif
+
     QQmlApplicationEngine engine;
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
@@ -472,12 +490,12 @@ Verify update binary using 'shasum'-compatible (SHA256 algo) output signed by tw
 
     engine.rootContext()->setContextProperty("tailsUsePersistence", TailsOS::usePersistence);
 
-// Exclude daemon manager from IOS
 #ifndef Q_OS_IOS
-    DaemonManager daemonManager;
-    P2PoolManager p2poolManager;
     engine.rootContext()->setContextProperty("daemonManager", &daemonManager);
     engine.rootContext()->setContextProperty("p2poolManager", &p2poolManager);
+#ifdef WITH_I2P
+    engine.rootContext()->setContextProperty("i2pManager", &i2pManager);
+#endif
 #endif
 
     engine.rootContext()->setContextProperty("isWindows", isWindows);
